@@ -1,0 +1,274 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library("ggplot2")
+```
+#Setting up data for CD4_pct
+```{r}
+#Fixing the CD69 data that Genevieve gave me
+#empty strings need to be filled with NA
+CD69df = read.csv("~/my.work/PhD/HomestaticExpansionProject/T cell Activation Summary_Jon.csv", header = FALSE, na.strings=c("","NA"))
+#has a weird first row with one entry saying "CD69.Data.Summary", so I'm removing it, and the row with names
+CD69df = CD69df[-(1:2),]
+#Removing an empty column
+CD69df[[15]] = NULL
+# Using actual Column names now
+colnames(CD69df) <- c("PerformedBy", "Date", "Notebook", "Page", "Mouse Tag",
+                      "TissuesUsed", "TubeNumbers", "Genotype", "Age", "Notes", 
+                      "CD4_pct", "CD8_pct", "CD4CD69_pct", "CD8CD69_pct",
+                      "CD4CD44CD62L_pct", "CD8CD44CD62L_pct")
+
+#Now removing the rows that have empty data under the CD4_pct column
+completeFun <- function(data, desiredCols) {
+  completeVec <- complete.cases(data[, desiredCols])
+  return(data[completeVec, ])
+}
+CD69df = completeFun(CD69df, "CD4_pct")
+# Numbers aren't being read as numeric because the first lines are messed up
+cl4 = which( colnames(CD69df)=="CD4_pct" )
+CD69df[cl4:ncol(CD69df)] = lapply(CD69df[cl4:ncol(CD69df)], as.character)
+CD69df[cl4:ncol(CD69df)] = lapply(CD69df[cl4:ncol(CD69df)], as.numeric)
+
+#Age seems to have a problem, it read age 4 as the highest when I made a plot
+CD69df["Age"] = lapply(CD69df["Age"], as.character)
+CD69df["Age"] = lapply(CD69df["Age"], as.numeric)
+
+
+# Replacing the IL-2 HET with WT
+CD69df$Genotype[CD69df$Genotype == "IL-2-HET"] = "WT"
+
+```
+#Plotting Genevieves results
+```{r}
+ggplot(data=CD69df, aes(x=Age, y=CD4CD69_pct)) +
+  geom_point(position = position_dodge(width = 0.8), aes(color = Genotype))
+
+#####################
+#Now with Error Bars#
+#####################
+#Guide I am using - http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/
+#Now to get the error bars
+library("Rmisc")
+cd4cd69 <- summarySE(CD69df, measurevar="CD4CD69_pct", groupvars=c("Age","Genotype"))
+#Replacing the NA's produced by day 1's
+cd4cd69[is.na(cd4cd69)] = 0
+
+#Positional Dodge
+pd <- position_dodge(0.1)
+
+ggplot(cd4cd69, aes(x=Age, y=CD4CD69_pct, colour=Genotype, group=Genotype)) + 
+    geom_errorbar(aes(ymin=CD4CD69_pct-sd, ymax=CD4CD69_pct+sd), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "CD4CD69+ Percent sdbar")
+
+ggplot(cd4cd69, aes(x=Age, y=CD4CD69_pct, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD4CD69_pct-se, ymax=CD4CD69_pct+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Percentage of CD4CD69+ T cells sebar", y = "Percent", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+
+#Total Cell numbers with Error bars
+CD4ct <- summarySE(pop, measurevar="CD4CT", groupvars=c("Age","Genotype"))
+#Replacing the NA's produced by day 1's
+CD4ct[is.na(CD4ct)] = 0
+
+ggplot(CD4ct, aes(x=Age, y=CD4CT, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD4CT-se, ymax=CD4CT+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD4 T Cells in the 10^6 with SE bars", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+
+
+
+```
+#Plotting CD62L
+```{r}
+colnames(CD69df)
+ggplot(data=CD69df, aes(x=Age, y=CD4CD44CD62L_pct)) +
+  geom_point(position = position_dodge(width = 0.8), aes(color = Genotype), size = 3)+
+  labs(title = "CD4CD44CD62L+ Percentage")
+
+```
+
+#Getting Treg data for Genevieve
+```{r}
+############################################################
+#
+# Getting Treg data for Genevieve
+#
+############################################################
+library("dplyr")
+
+popSpleen = subset(pop, Organ == 'Spleen')
+#Desired columns 1:18, "CD4Ratio", "X4TregRatio", "CD4CT", "X4TregCT"
+colNumbers = match(c("CD4Ratio", "X4TregRatio", "CD4CT", "X4TregCT"),names(pop))
+colNumbers
+popCD4nTregs = popSpleen[c[1:18, 45, 49, 58, 62]]
+popCD4nTregs = popSpleen[,c[45, 49, 58, 62,1:18]]
+
+popCD4nTregs = dplyr::select(popSpleen, 1:18, colNumbers)
+colnames(popCD4nTregs)
+write.csv(popCD4nTregs, "~/my.work/PhD/Homestatic Expansion Project/Code/Rscripts/temp/TregDataForGenevieve.csv")
+```
+#Plotting thymus weight
+
+```{r}
+popThym = subset(pop, Organ == "Thymus")
+popThym$OrganWeight = popThym$OrganWeight * 10**3
+ggplot(popThym, aes(x=Age, y=OrganWeight, colour=Genotype, group=Genotype)) + 
+  geom_point(size=3)+
+  labs(title = "Thymus Size", 
+       y = "Weight in miligrams")
+```
+
+#Regression Analysis of WT vs KO in CD69 data
+```{r}
+CD69WT = subset(CD69df, Genotype == "WT")
+CD69KO = subset(CD69df, Genotype == "IL-2-KO")
+
+reg69WT = lm(formula = CD4CD69_pct ~ Age, data = CD69WT)
+reg69KO = lm(formula = CD4CD69_pct ~ Age, data = CD69KO)
+summary(reg69WT)
+#-0.7105, 0.1703
+summary(reg69KO)
+#0.5976, 0.5358
+#Calculating Z score (sl1 - sl2)/sqrt(SE1**2 + SE2**2)
+(-0.7105 - 0.5976) / sqrt(0.1703**2 + 0.5358**2)
+#Z = -2.326697
+#P = 0.010009
+```
+
+```{r}
+WTregr = summary(lm(CD4CD69_pct ~ poly(Age,4, raw = TRUE), data = CD69WT))
+KOregr = summary(lm(CD4CD69_pct ~ poly(Age,4, raw = TRUE), data = CD69KO))
+WTregr
+KOregr
+```
+
+```{r}
+#Link of how
+#https://stackoverflow.com/questions/23334360/plot-polynomial-regression-curve-in-r
+fit <- lm(CD4CD69_pct ~ poly(Age,4), data = CD69WT)
+plot(CD69WT$CD4CD69_pct ~ CD69WT$Age, main = "WT")
+lines(sort(CD69WT$Age), fitted(fit)[order(CD69WT$Age)], col='red', pch=20)
+
+fit <- lm(CD4CD69_pct ~ poly(Age,4), data = CD69KO)
+plot(CD69KO$CD4CD69_pct ~ CD69KO$Age, main = "KO")
+lines(sort(CD69KO$Age), fitted(fit)[order(CD69KO$Age)], col='red', pch=20)
+```
+
+```{r}
+lm(CD69WT$CD4CD69_pct ~ poly(CD69WT$Age,2))
+```
+
+# Plotting Calculated Activated CD4 T cells
+
+```{r}
+library(ggplot2)
+ActCD4 = read.csv('~/my.work/PhD/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv')
+ggplot(ActCD4, aes(intage, CD4CT, colour=Genotype, fill=Genotype)) +
+  geom_smooth(method="lm") +
+  geom_point(size=3) +
+  theme_bw() + 
+  xlab("Age in Days") +
+  ylab("CD4 T cell counts in 10^6") +
+  ggtitle("Total CD4 T cells") + 
+  expand_limits(y=0) +
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=16,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+ggplot(ActCD4, aes(intage, ActivatedCD4CT, colour=Genotype, fill=Genotype)) +
+  geom_smooth(method="lm") +
+  geom_point(size=3) +
+  theme_bw() + 
+  xlab("Age in Days") +
+  ylab("Activated CD4 T cell counts in 10^6") +
+  ggtitle("Total Activated CD4 T cells") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=16,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+
+#Plots with sd need to be done on the summary results, so
+library("Rmisc")
+SumActivCD4 <- summarySE(ActCD4, measurevar="ActivatedCD4CT", groupvars=c("intage","Genotype"))
+
+ggplot(SumActivCD4, aes(x=intage, y=ActivatedCD4CT, colour=Genotype, group=Genotype)) +
+  geom_errorbar(aes(ymin=ActivatedCD4CT-se, ymax=ActivatedCD4CT+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD4CD69+ Cells (10^6)", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14), 
+        axis.title=element_text(size=18,face="bold"), 
+        plot.title = element_text( size = 20, face = "bold"))
+```
+
+#Regression Analysis of WT vs KO in CD4CD69+ T cells
+```{r}
+table(ActCD4$intage)
+#ActCD4 
+ActCD4WT = subset(ActCD4, Genotype == "WT")
+ActCD4KO = subset(ActCD4, Genotype == "KO")
+
+reg469WT = lm(formula = ActivatedCD4CT ~ intage, data = ActCD4WT)
+reg469KO = lm(formula = ActivatedCD4CT ~ intage, data = ActCD4KO)
+summary(reg469WT)
+#Slope SE
+#0.014052   0.003341
+summary(reg469KO)
+#0.05955    0.01007
+#Calculating Z score (sl1 - sl2)/sqrt(SE1**2 + SE2**2)
+(0.014052 - 0.05955) / sqrt(0.003341**2 + 0.01007**2)
+#Z = -4.288312
+#P =  0.000018
+```
+##Regression Analysis of WT vs KO in just CD4 T cells
+```{r}
+popNo56<-pop[!(pop$intage==56),]
+popWT = subset(popNo56, Genotype == "WT")
+popKO = subset(popNo56, Genotype == "KO")
+
+reg4popWT = lm(formula = CD4CT ~ intage, data = popWT)
+reg4popKO = lm(formula = CD4CT ~ intage, data = popKO)
+summary(reg4popWT)
+#Slope SE
+#0.32875   0.06991
+summary(reg4popKO)
+#0.39749    0.07445
+#Calculating Z score (sl1 - sl2)/sqrt(SE1**2 + SE2**2)
+(0.32875 - 0.39749) / sqrt(0.06991**2 + 0.07445**2)
+#Z = -0.6730743
+#P =   .500947
+```
+#T test of day 12 WT vs KO
+#T test on activated cd4 => 12
+```{r}
+ActCD4 = read.csv('~/my.work/PhD/Homestatic Expansion Project/ModelData/ActivatedCD4pop.csv')
+d12WT = subset(ActCD4, intage == c(12,14, 18) & Genotype == "WT")
+d12KO = subset(ActCD4, intage == c(12,14, 18) & Genotype == "KO")
+dWT = d12WT$ActivatedCD4CT
+dKO = d12KO$ActivatedCD4CT
+t.test(dWT, dKO, alternative = "two.sided")
+```
+#T test on activated cd4 < 12
+```{r}
+ActCD4 = read.csv('~/my.work/PhD/Homestatic Expansion Project/ModelData/ActivatedCD4pop.csv')
+d12WT = subset(ActCD4, intage < 12 & Genotype == "WT")
+d12KO = subset(ActCD4, intage < 12 & Genotype == "KO")
+dWT = d12WT$ActivatedCD4CT
+dKO = d12KO$ActivatedCD4CT
+t.test(dWT, dKO, alternative = "two.sided")
+```
+

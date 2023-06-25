@@ -1,0 +1,215 @@
+---
+title: "MakingPlotsFromActivatedData"
+output: html_document
+---
+
+## Packages and Data
+```{r}
+ActivatedData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+DeathData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/Version8_death-GM.csv")
+library("ggplot2")
+library("Hmisc")
+
+```
+
+## Naive T, Activated T, and Treg cells Growth
+```{r}
+
+WTSpleenOnly = subset(ActivatedData, Organ == "Spleen" & Genotype == "WT")
+#Making the Naive T cell numbers
+WTSpleenOnly$NaiveTcells = WTSpleenOnly$CD4CT - WTSpleenOnly$ActivatedCD4CT
+
+
+pd <- position_dodge(1)
+ggplot(WTSpleenOnly,aes(Age, NaiveTcells)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "Naive [CD4+] - [CD4+CD69+] 298.2543 x 10^3 / day", y = "Total counts x 10^6", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+#Changing ActivatedCD4CT to 10^3
+WTSpleenOnly$ActivatedCD4CT = WTSpleenOnly$ActivatedCD4CT * 1000
+
+pd <- position_dodge(1)
+ggplot(WTSpleenOnly,aes(Age, ActivatedCD4CT)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "ActivatedT [CD4+CD69+] 6.937961 x 10^3 / day", y = "Total counts x 10^3", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+
+#Changing Treg to 10^3
+WTSpleenOnly$X4TregCT = WTSpleenOnly$X4TregCT * 1000
+#Treg numbers
+pd <- position_dodge(1)
+ggplot(WTSpleenOnly,aes(Age, X4TregCT)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "Treg [Foxp3+] 15.93452 x 10^3 / day", y = "Total counts x 10^3", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+
+
+```
+
+
+## Thymus weight rate
+
+```{r}
+WTThymusOnly = subset(ActivatedData, Organ == "Thymus" & Genotype == "WT")
+
+pd <- position_dodge(1)
+ggplot(WTThymusOnly,aes(Age, OrganWeight)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "Thymus weight 4.375 milligrams / day", y = "grams", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+  )
+
+#Changing Thymus weights to miligrams 
+WTThymusOnly$OrganWeight = WTThymusOnly$OrganWeight * 1000
+
+pd <- position_dodge(1)
+ggplot(WTThymusOnly,aes(Age, OrganWeight)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "Thymus weight 4.375 milligrams / day", y = "milligrams", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+#Just plot, no fit
+pd <- position_dodge(1)
+ggplot(WTThymusOnly,aes(24*Age, OrganWeight)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  #geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "Thymus weight milligrams", y = "milligrams", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+```
+
+## Naive Death Rate
+```{r}
+#Loading Data
+DeathData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/Version8_death-GM.csv")
+#Spleen and WT
+DeathDataS = subset(DeathData, Organ == "Spleen" & Genotype == "WT")
+
+#Fixing the Percentages
+DeathDataS$pct.CD4.dead = DeathDataS$X.CD4.dead * 0.01
+DeathDataS$pct.CD4.Treg.dead = DeathDataS$X.CD4.Treg.dead * 0.01 
+
+#Removing NA's
+DeathDataS = DeathDataS[!is.na(DeathDataS$X.CD4.Treg.dead), ]
+# DeathDataS$X.CD4.Treg.dead
+DeathDataS$DeadCD4CT = (DeathDataS$X.CD4.dead * DeathDataS$CD4CT) / (1 - DeathDataS$X.CD4.dead)
+DeathDataS$DeadTregCT = (DeathDataS$X.CD4.Treg.dead * DeathDataS$X4TregCT) / (1 - DeathDataS$X.CD4.Treg.dead)
+
+#Calculating CD4 and Treg dead
+DeathDataS$DeadCD4.CT = DeathDataS$X.CD4.dead * DeathDataS$CD4CT
+DeathDataS$DeadTreg.CT = DeathDataS$X.CD4.Treg.dead * DeathDataS$X4TregCT
+
+#Removing day 56 entries
+DeathDataS = DeathDataS[!(DeathDataS$Age > 30),]
+
+#Death Rate of Treg and naive 
+
+
+# #Death CD4 rate
+# lin1<-lm(data=DeathDataS, DeadCD4.CT~Age)
+# summary(lin1)$coefficients[2]
+# 
+# #Dead Treg Rate
+# lin2<-lm(data=DeathDataS, DeadTreg.CT~Age)
+# summary(lin2)$coefficients[2]
+
+#Making the units of the dead CT to 10^3
+
+DeathDataS$DeadCD4.CT = DeathDataS$DeadCD4.CT * 1000
+DeathDataS$DeadTreg.CT = DeathDataS$DeadTreg.CT * 1000
+
+
+## Plots dead Naive and Treg
+
+#Naive
+pd <- position_dodge(1)
+ggplot(DeathDataS,aes(Age, DeadCD4.CT)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "Dead Naive [CD4+FV506+] 1.197 x 10^3 / day ", y = "Total counts x 10^3", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 15, face = "bold")
+  )
+
+#Treg
+ggplot(DeathDataS,aes(Age, DeadCD4.CT)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "Dead Treg [Foxp3+FV506+] 0.284 x 10^3 / day ", y = "Total counts x 10^3", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 15, face = "bold")
+  )
+
+#
+
+
+```
+
+## KI-67 Tregs and Activated T cells
+
+```{r}
+WTSpleenOnly = subset(ActivatedData, Organ == "Spleen" & Genotype == "WT")
+
+#Treg KI67+ cells
+
+#X4TregProlCT changing to 10^3
+WTSpleenOnly$X4TregProlCT = WTSpleenOnly$X4TregProlCT * 1000
+
+pd <- position_dodge(1)
+ggplot(WTSpleenOnly,aes(Age, X4TregProlCT)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "Proliferating Tregs [Foxp3+KI67+] 6.11 x 10^3 / day", y = "Total counts x 10^3", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 15, face = "bold")
+        )
+
+# [CD4+CD69+KI67+] Rates
+# WTSpleenOnly$CD4ProlCT to 1000
+
+WTSpleenOnly$CD4ProlCT = WTSpleenOnly$CD4ProlCT * 1000
+
+pd <- position_dodge(1)
+ggplot(WTSpleenOnly,aes(Age, CD4ProlCT)) +
+  # stat_summary(fun.data= mean_cl_normal) + 
+  geom_smooth(method='lm')+
+  geom_point(position=pd, size=3)+
+  labs(title = "Proliferating Activated T [CD4+KI67+] 26.45375 x 10^3 / day", y = "Total counts x 10^3", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 15, face = "bold")
+        )
+
+```

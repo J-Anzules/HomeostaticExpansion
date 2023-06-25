@@ -1,0 +1,523 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+#Source for popcount
+```{r}
+#Preparing the data and the function
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+library(ggplot2)
+```
+
+Some info on the 'pop' dataset
+- 1:18 - meta data associated with the experiment that generated the data
+- 18:42 - Individual events counted/selected by the FCS express at the appropriate gate
+- 43 - Age in integer format; Age(pop[,14]) is a column with the ages saved as factors for the purposes of creating the plots that I first made.
+- 44+ - All calculations created from either 'popcount_V2.R' or this R script. E-mail jonazule@gmail.com if there is any confusion. 
+
+#Doing t tests on the ages
+```{r}
+#Functions
+ageTtest = function(column, alternative){
+  age = c(0,4,7,9,12,14,18)
+  results = data.frame(matrix(ncol = 2, nrow = 0))
+  colnames(results) <- c("Age", "Pvalue")
+  #Do not change the name of pop dataframe in popCount_V2.R script
+  for (i in age){
+    wt = subset(pop, intage == i & Genotype == "WT", select = column)
+    ko = subset(pop, intage == i & Genotype == "KO", select = column)
+    tt = t.test(wt, ko, alternative = alternative)
+    results[nrow(results)+1,] <- c(i, tt$p.value)
+  }
+  return(results)
+}
+
+```
+
+```{r}
+#T test bulk ages
+BulkTestWithAgeCutoff = function(column, age, lessOrGreater = "Greater"){
+  #data will always be pop
+  # ages are age = c(0,4,7,9,12,14,18)
+  if (lessOrGreater == "less"){
+    wt = subset(pop, intage <= age & Genotype == "WT")
+    ko = subset(pop, intage <= age & Genotype == "KO")
+  } else {
+    wt = subset(pop, intage >= age & Genotype == "WT" & intage < 56 )
+    ko = subset(pop, intage >= age & Genotype == "KO" & intage < 56)
+  }
+  results = t.test(wt[[column]], ko[[column]], alternative = "two.sided")
+  return(results)
+}
+colnames(pop)
+
+```
+
+```{r}
+ageTtest("CD4CT")
+ageTtest("CD4Ratio")
+ageTtest("Bratio")
+ageTtest("CD4ProlCT")
+ageTtest("X4TregRatio", "greater")
+ageTtest("X4TregCT")
+ageTtest("CD8ct", "less")
+ageTtest("CD8", "less")
+
+```
+
+```{r}
+#Pulling out the counts that were not proliferating
+pop$CD4nonProliferating_CT = pop$CD4CT - pop$CD4ProlCT
+ageTtest("CD4nonProliferating_CT")
+```
+
+```{r}
+#Looking to see the ratio of non activated
+pop$CD4nonProliferating_Ratio = pop$CD4nonProliferating_CT/pop$CD4CT
+summary(pop$CD4nonProliferatingd_Ratio)
+hist(pop$CD4nonProliferating_Ratio, breaks = seq(0,1,0.01))
+lowFreq = subset(pop, CD4nonProliferating_Ratio <= 0.5)
+highFreq = subset(pop, CD4nonProliferating_Ratio >= 0.5)
+hist(lowFreq$intage)
+hist(highFreq$intage)
+
+#We have a high number of non activation in the ages above 10
+```
+
+```{r}
+#High non activation difference between WT and KO
+#High numbers of non activated cells
+highNonProlWT = subset(pop, CD4nonProliferating_Ratio >= 0.5 & Genotype == "WT")
+highNonProlKO = subset(pop, CD4nonProliferating_Ratio >= 0.5 & Genotype == "KO")
+par(mfrow=c(1,2))
+hist(highNonProlKO$intage, main = "HignNonProl KO")
+hist(highNonProlWT$intage, main = "HignNonProl WT")
+t.test(highNonProlWT$CD4nonActivated_Ratio, highNonProlKO$CD4nonActivated_Ratio, alternative = "two.sided")
+
+# ageTtest("CD4nonActivated_Ratio")
+
+```
+
+```{r}
+#Testing to see proliferation
+hist(pop$CD4ProlRatio, main = "Proliferation of All")
+highProlWT =  subset(pop, CD4ProlRatio >= 0.5 & Genotype == "WT")
+highProlKO =  subset(pop, CD4ProlRatio >= 0.5 & Genotype == "KO")
+par(mfrow=c(1,2))
+hist(highProlWT$intage, main = "HighProl CD4 KO")
+hist(highProlKO$intage, main = "HignProl CD4 WT")
+t.test(highProlWT$CD4ProlRatio, highProlKO$CD4ProlRatio, alternative = "two.sided")
+t.test(highFreqWT$CD4nonActivated_Ratio, highFreqKO$CD4nonActivated_Ratio, alternative = "two.sided")
+```
+```{r}
+#Testing the proliferation of CD4s of ages 9 and above
+prol9nGreaterWT = subset(pop, intage >= 9 & Genotype == "WT" & intage < 56 )
+prol9nGreaterKO = subset(pop, intage >= 9 & Genotype == "KO" & intage < 56 )
+t.test(prol9nGreaterWT$CD4ProlRatio, prol9nGreaterKO$CD4ProlRatio, alternative =  "two.sided")
+```
+```{r}
+BulkTestWithAgeCutoff("CD4ProlRatio",9)
+BulkTestWithAgeCutoff("X4TregRatio",9)
+ageTtest("X4TregRatio")
+#Tregs have a statistical differences when it comes to age by age at age 9 and 4, and almost at day 19
+#When bulked all treg ratio numbers above age 9 are statistically significant
+```
+
+#Checking Weights of Organs and Mice
+```{r}
+#Checking out the Spleen and Thymus Weights
+ThymWeight = subset(pop, Organ == "Thymus")
+SplnWeightKO = subset(pop, Organ == "Spleen" & OrganWeight < 0.79 & Genotype == "KO")
+SplnWeightWT = subset(pop, Organ == "Spleen" & OrganWeight < 0.79 & Genotype == "WT")
+#There is an outlier in the spleen weight
+
+plot(ThymWeight$Age,ThymWeight$OrganWeight)
+plot(SplnWeight$Age, SplnWeight$OrganWeight)
+plot(SplnWeightKO$Age, SplnWeightKO$OrganWeight)
+plot(SplnWeightWT$Age, SplnWeightWT$OrganWeight,
+     xlab = 'Age in Days',
+     ylab = 'Weight in Grams',
+     main = 'Weight of WT Thymus')
+
+#plot the cell counts
+#
+```
+
+```{r}
+#Using GGplot to check out the weights
+ggplot(data=SplnWeight, aes(x=Age, y=OrganWeight)) +
+  geom_point(position = position_dodge(width = 0.8), aes(color = Genotype))
+  
+ggplot(data=ThymWeight, aes(x=Age, y=OrganWeight)) +
+  geom_point(position = position_dodge(width = 0.8), aes(color = Genotype))
+  
+```
+
+
+####################################
+#Getting Treg values that did not come from the thymus
+```{r}
+#Plotting and Continuously working with data
+#source("C:/Laptop Backups/HomestaticExpansionProject/Code/Stats plots and data management/popCount_V2.R")
+#source("C:/Laptop Backups/HomestaticExpansionProject/Code/Stats plots and data management/FunctionsData.R")
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+library(dplyr)
+library("Rmisc")
+library("reshape2")
+#Need to remove dates that are not symmetrical for subtractions - Dates are 2/25/2018 and 12/6/2017
+#There is a missing thymus and only one thymus for one of the dates - Incomplete data
+
+popNoInc <- pop[!(pop$intage == 18 & pop$expDate=="2/25/2018" | pop$expDate=="12/6/2017"),]
+#day 0 screwing with the data
+popNoInc = popNoInc[!(popNoInc$Age == "0"),]
+#A d56 spleen doesn't have a thymus partner
+popNoInc = popNoInc[!(popNoInc$FileID == "JA022518WK8M1WTS"),]
+#Grouping and then subtracting Thymus treg freq from Spleen
+popNoInc = popNoInc %>%
+   group_by(Age, Genotype, expDate) %>%
+   mutate(Diff = X4TregRatio - X4TregRatio[Organ == 'Thymus'])
+#Values removed by Thymus
+popNoInc$X4TregFromThymus = popNoInc$X4TregRatio - popNoInc$Diff
+#Replacing the Negative Values with 0
+popNoInc$Diff[popNoInc$Diff < 0] <- 0
+
+#plotting differences
+
+#Removing the same things from the original file as I did for the popNoInc
+pop2 <- pop[!(pop$intage == 18 & pop$expDate=="2/25/2018" | pop$expDate=="12/6/2017"),]
+#day 0 screwing with the data
+pop2 = pop2[!(pop2$Age == "0"),]
+#A d56 spleen doesn't have a thymus partnet
+pop2 = pop2[!(pop2$FileID == "JA022518WK8M1WTS"),]
+
+pop2S = subset(pop2, Organ == "Spleen")
+popNoIncS = subset(popNoInc , Organ == "Spleen")
+
+ggplot(pop2S, aes(x=Age, y=X4TregRatio, colour=Genotype, group=Genotype)) +
+  geom_point(size=3) +
+  labs(title = "Tregulatory Cell Frequencies from the Spleen",
+       y = "Treg Percentages")+
+  ylim(0, 0.175)
+
+# Treg with error bars
+TregError <- summarySE(pop2S, measurevar="X4TregRatio", groupvars=c("Age","Genotype"))
+#Replacing the NA's produced by day 1's
+TregError[is.na(TregError)] = 0
+ggplot(TregError, aes(x=Age, y=X4TregRatio, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=X4TregRatio-se, ymax=X4TregRatio+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Treg Population Percentage in the Spleen", y = "Percent", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 15, face = "bold")
+        )
+
+ggplot(popNoIncS, aes(x=Age, y=Diff, colour=Genotype, group=Genotype)) + 
+  geom_point(size=3)+
+  labs(title = "Minus the Thymus Frequencies", 
+       y = "Treg Frequency Minus Thymus Frequency")+
+  ylim(0, 0.175)
+ggplot(popNoIncS, aes(x=Age, y=X4TregFromThymus, colour=Genotype, group=Genotype)) + 
+  geom_point(size=3)+
+  labs(title = "Treg Frequencies from Thymus", 
+       y = "Frequencies from Thymus")+
+  ylim(0, 0.175)
+
+```
+
+#Prepping Thymus data for matlab
+```{r}
+popThymWT = subset(popThym, Genotype == "WT")
+popThymWT_DataForMatlab = data.frame(popThymWT$Age, popThymWT$OrganWeight)
+popThymWT_DataForMatlab = na.omit(popThymWT_DataForMatlab)
+write.csv(popThymWT_DataForMatlab, 'C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/Fitting/V2/ThymusData.csv')
+```
+
+#Comparing regression of two different trend lines
+
+```{r}
+####################################
+#
+#Relevant information:
+#PAPERS
+#Papers that go over how to choose the right methods
+#     1- Paternoster, R., Brame, R., Mazerolle, P., & Piquero, A. R. (1998). Using the Correct Statistical Test for the Equality of Regression Coefficients. Criminology, 36(4), 859–866.
+#     2- Andrade, J. M., and M. G. Estévez-Pérez. "Statistical comparison of the slopes of two regression lines: A tutorial." Analytica chimica acta 838 (2014): 1-12.
+#
+#LINK TO BEST HELP
+#https://stats.stackexchange.com/questions/55501/test-a-significant-difference-between-two-slope-values
+
+# Link that goes over the different ways to make sure your calculations are right
+####################################
+
+```
+
+```{r}
+
+#Actually calculating the regression lines and getting p values
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+#Subsetting WT and KO - Removing the ones older than 56 because those we are not considering
+popWT = subset(pop, Genotype == "WT" & intage < 56)
+popKO = subset(pop, Genotype == "KO")
+#Independent variable is age, and we are trying to predict CD4CT (dependent)
+regWT = lm(formula = CD4CT ~ intage, data = popWT)
+regKO = lm(formula = CD4CT ~ intage, data = popKO)
+summary(regWT)
+#CD4CT ~ intage - 0.32875, 0.06991
+summary(regKO)
+#CD4CT ~ intage - 0.39749, 0.07445
+#Calculating Z score (sl1 - sl2)/sqrt(SE1**2 + SE2**2)
+(0.32875 - 0.39749) / sqrt(0.06991**2 + 0.07445**2)
+#Z = -0.6730743
+#p-value - 0.250474
+```
+
+```{r}
+#Visualizing the trend lines
+ggplot(popWT, aes(x=intage, y=CD4CT)) +
+  geom_point(shape=1) +    # Use hollow circles
+  geom_smooth(method=lm) +  # Add linear regression line
+  labs(title = "Wild Type CD4 counts, slope = 0.8722") #(by default includes 95% confidence region)
+ggplot(popKO, aes(x=intage, y=CD4CT)) +
+  geom_point(shape=1) +    # Use hollow circles
+  geom_smooth(method=lm)+   # Add linear regression line 
+  labs(title = "Knock Out CD4 counts, slope = 0.8587")  #  (by default includes 95% confidence region)
+
+```
+```{r}
+#Trend lines of the CD4 frequencies
+
+regrWT = lm(formula = CD4Ratio ~ intage, data = popWT)
+regrKO = lm(formula = CD4Ratio ~ intage, data = popKO)
+summary(regrWT)
+summary(regrKO)
+```
+
+
+```{r}
+#visualizing trend lines of frequencies
+ggplot(popWT, aes(x=intage, y=CD4Ratio)) +
+  geom_point(shape=1) +    # Use hollow circles
+  geom_smooth(method=lm) +  # Add linear regression line
+  labs(title = "Wild Type CD4 counts, slope = ") #(by default includes 95% confidence region)
+ggplot(popKO, aes(x=intage, y=CD4Ratio)) +
+  geom_point(shape=1) +    # Use hollow circles
+  geom_smooth(method=lm)+   # Add linear regression line 
+  labs(title = "Knock Out CD4 counts, slope = ")  #  (by default includes 95% confidence region)
+```
+
+
+```{r}
+popSpln = subset(pop, Organ == "Spleen")
+pd <- position_dodge(0.1)
+ggplot(popSpln, aes(x=Age, y=TotalLiveCountInMillions, colour=Genotype, group=Genotype)) + 
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD4 T Cell Counts in the 10^6", y = "Counts", x = "Age in Days")
+
+#get total splenic cell counts for WT and KO up to 4 each from Genevieve and Kristen.
+```
+
+
+
+
+
+#Plotting Spleen CD4,CD8 cells all ages, pre 12
+```{r}
+#Guide I am using - http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/
+#Now to get the error bars
+source("C:/Laptop Backups/HomestaticExpansionProject/Code/Stats plots and data management/popCount_V2.R")
+library("Rmisc")
+SpleenOnly = subset(pop, Organ == "Spleen")
+
+### CD4
+
+CD4ct <- summarySE(SpleenOnly, measurevar="CD4CT", groupvars=c("Age","Genotype"))
+pd <- position_dodge(0.1)
+ggplot(CD4ct, aes(x=Age, y=CD4CT, colour=Genotype, group=Genotype)) + 
+  #geom_errorbar(aes(ymin=CD4CT-se, ymax=CD4CT+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD4 T Cells (10^6)", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold"))
+
+
+
+### CD8
+
+CD8ct <- summarySE(SpleenOnly, measurevar="CD8ct", groupvars=c("Age","Genotype"))
+
+ggplot(CD8ct, aes(x=Age, y=CD8ct, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD8ct-se, ymax=CD8ct+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD8 T Cells in the 10^6 with SE bars", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold"))
+
+
+
+
+#######################
+#
+#   Pre-9
+#
+#######################
+
+SpleenPre12 <- subset(SpleenOnly, intage < 12)
+
+### CD4
+
+
+CD4ctpre12 <- summarySE(SpleenPre12, measurevar="CD4CT", groupvars=c("Age","Genotype"))
+ggplot(CD4ctpre12, aes(x=Age, y=CD4CT, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD4CT-se, ymax=CD4CT+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD4 T Cells in the 10^6 with SE bars", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold"))
+
+### CD8
+
+CD8ctpre12 <- summarySE(SpleenPre12, measurevar="CD8ct", groupvars=c("Age","Genotype"))
+ggplot(CD8ctpre12, aes(x=Age, y=CD8ct, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD8ct-se, ymax=CD8ct+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD8 T Cells in the 10^6 with SE bars", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold"))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+#Plotting Thymus CD4,CD8 cells all ages, pre 12, post 9
+```{r}
+source("C:/Laptop Backups/HomestaticExpansionProject/Code/Stats plots and data management/popCount_V2.R")
+library("Rmisc")
+ThymusOnly = subset(pop, Organ == "Thymus")
+ThyCD4ct <- summarySE(ThymusOnly, measurevar="CD4CT", groupvars=c("Age","Genotype"))
+pd <- position_dodge(0.1)
+ggplot(ThyCD4ct, aes(x=Age, y=CD4CT, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD4CT-se, ymax=CD4CT+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD4 T Cells (10^6)", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold"))
+
+###########
+# CD8
+###########
+
+ThyCD8ct <- summarySE(ThymusOnly, measurevar="CD8ct", groupvars=c("Age","Genotype"))
+pd <- position_dodge(0.1)
+ggplot(ThyCD8ct, aes(x=Age, y=CD8ct, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD8ct-se, ymax=CD8ct+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD8 T Cells in the 10^6 with SE bars", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold"))
+
+```
+#Naive T cell plots
+```{r}
+DataForModel = read.csv("C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedDataForModel_WTSPLEEN.csv")
+
+ggplot(DataForModel, aes(x=Age, y=NaiveT_Cells, colour=Genotype, group=Genotype)) + 
+  geom_point(position=pd, size=3) +
+  labs(title = "Total Naive T Cell Counts WT", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold"))
+
+```
+#Stats for Thymus Weight between WT and IL-2 KO
+```{r}
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+popThym = subset(pop, Organ == "Thymus")
+popThym18WT = subset(popThym, intage == 18 & Genotype == "WT")
+# popThym18WT = subset(popThym18WT, OrganWeight >5.5)
+popThym18KO = subset(popThym, intage == 18 & Genotype == "KO")
+t.test(popThym18WT$OrganWeight, popThym18KO$OrganWeight)
+
+popThym18WT$OrganWeight = popThym18WT$OrganWeight * 100
+sd(popThym18WT$OrganWeight)
+
+popThym18KO$OrganWeight = popThym18KO$OrganWeight * 100
+sd(popThym18KO$OrganWeight)
+
+popThym14WT = subset(popThym, intage == 14 & Genotype == "WT")
+popThym14KO = subset(popThym, intage == 14 & Genotype == "KO")
+t.test(popThym14WT$OrganWeight, popThym14KO$OrganWeight)
+length(popThym18KO$OrganWeight)
+
+
+```
+
+
+#Stats for Spleen Weight Between WT and IL-2 KO
+```{r}
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+popSpln = subset(pop, Organ == "Spleen")
+
+pop12SplnWT = subset(popSpln, intage == 12 & Genotype == "WT")
+pop12SplnKO = subset(popSpln, intage == 12 & Genotype == "KO")
+t.test(pop12SplnWT$OrganWeight,pop12SplnKO$OrganWeight )
+
+pop14SplnWT = subset(popSpln, intage == 14 & Genotype == "WT")
+pop14SplnKO = subset(popSpln, intage == 14 & Genotype == "KO")
+t.test(pop14SplnWT$OrganWeight,pop14SplnKO$OrganWeight )
+
+pop18SplnWT = subset(popSpln, intage == 18 & Genotype == "WT")
+pop18SplnKO = subset(popSpln, intage == 18 & Genotype == "KO")
+t.test(pop18SplnWT$OrganWeight,pop18SplnKO$OrganWeight )
+
+
+```
+
+#DNU - correlation of CD4 T cells and organ weight
+```{r}
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+popThym = subset(pop, Organ == "Thymus")
+
+plot(pop$OrganWeight, pop$CD4CT, xlim = c(0, 0.3),
+     main = "Total CD4 CT vs. Thymus Weight",
+     xlab = "Thymus weigth (grams)",
+     ylab = "CD4 Counts (10^6)",
+     pch = 16, cex = 1.3, col = "blue")
+abline(lm(pop$CD4CT~pop$OrganWeight))
+
+cor(pop$CD4CT,pop$OrganWeight, use = "na.or.complete")
+
+#Treg
+plot(pop$OrganWeight, pop$X4TregCT, xlim = c(0, 0.3),
+     main = "Total CD4 CT vs. Thymus Weight",
+     xlab = "Thymus weigth (grams)",
+     ylab = "CD4 Counts (10^6)",
+     pch = 16, cex = 1.3, col = "blue")
+
+summary(lm(pop$X4TregCT~pop$OrganWeight))
+summary(lm(pop$CD4CT~pop$OrganWeight))
+
+cor(pop$CD4CT,pop$OrganWeight, use = "na.or.complete")
+cor(pop$X4TregCT,pop$OrganWeight, use = "na.or.complete")
+```

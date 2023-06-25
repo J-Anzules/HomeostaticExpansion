@@ -1,0 +1,193 @@
+---
+title: "R15Progress Report"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source('~/my.work/PhD/Homestatic Expansion Project/Code/Rscripts/popCount_V2.R')
+library("ggplot2") #For Plotting
+library("Rmisc") #For error Bars
+popSpleen = subset(pop, Organ == "Spleen")
+```
+
+#CD8 T cell total Numbers
+```{r}
+
+CD8ct <- summarySE(popSpleen, measurevar="CD8ct", groupvars=c("Age","Genotype"))
+#Replacing the NA's produced by day 1's
+CD8ct[is.na(CD8ct)] = 0
+pdf(file = "~/my.work/PhD/Homestatic Expansion Project/Plots/R15ProgressReport_July2019/CD8TcellNumbers.pdf")
+ggplot(CD8ct, aes(x=Age, y=CD8ct, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD8ct-se, ymax=CD8ct+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD8 T Cells in the 10^6 with SE bars", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+ggplot(CD8ct, aes(x=Age, y=CD8ct, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD8ct-sd, ymax=CD8ct+sd), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD8 T Cells in the 10^6 with SD bars", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+
+ggplot(popSpleen, aes(x=Age, y=CD8ct, colour=Genotype, group=Genotype)) + 
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD8 T Cells in the 10^6", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+dev.off()
+```
+#CD8 % Numbers
+```{r}
+CD8pct <- summarySE(popSpleen, measurevar="CD8Ratio", groupvars=c("Age","Genotype"))
+#Replacing the NA's produced by day 1's
+CD8pct[is.na(CD8pct)] = 0
+pdf(file = "~/my.work/PhD/Homestatic Expansion Project/Plots/R15ProgressReport_July2019/PercentageOfCD8Tcells.pdf")
+ggplot(CD8pct, aes(x=Age, y=CD8Ratio, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD8Ratio-se, ymax=CD8Ratio+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Frequency of CD8 T Cells with SE bars", y = "Frequency", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+ggplot(CD8pct, aes(x=Age, y=CD8Ratio, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD8Ratio-sd, ymax=CD8Ratio+sd), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Frequency of CD8 T Cells with SD bars", y = "Frequency", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+
+ggplot(popSpleen, aes(x=Age, y=CD8Ratio, colour=Genotype, group=Genotype)) + 
+  geom_point(position=pd, size=3) +
+  labs(title = "Frequency of CD8 T Cells", y = "Frequency", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+dev.off()
+```
+
+#CD8 Treg numbers
+```{r}
+CD8TregCT <- summarySE(popSpleen, measurevar="X8TregCT", groupvars=c("Age","Genotype"))
+#Replacing the NA's produced by day 1's
+CD8TregCT[is.na(CD8TregCT)] = 0
+pdf(file = "~/my.work/PhD/Homestatic Expansion Project/Plots/R15ProgressReport_July2019/CD8TregNumbers.pdf")
+ggplot(CD8TregCT, aes(x=Age, y=X8TregCT, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=X8TregCT-se, ymax=X8TregCT+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD8+Foxp3+ Cells in the 10^6 with SE bars", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 18, face = "bold")
+        )
+ggplot(CD8TregCT, aes(x=Age, y=X8TregCT, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=X8TregCT-sd, ymax=X8TregCT+sd), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD8+Foxp3+ Cells in the 10^6 with SD bars", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 18, face = "bold")
+        )
+
+ggplot(popSpleen, aes(x=Age, y=X8TregCT, colour=Genotype, group=Genotype)) + 
+  geom_point(position=pd, size=3) +
+  labs(title = "Total CD8+Foxp3+ Cells in the 10^6", y = "Counts", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 18, face = "bold")
+        )
+dev.off()
+```
+#CD8 Treg Frequencies
+```{r}
+#Removing day 0's, because they look weird, and an outlier
+No0Pop = subset(popSpleen, intage > 0 & X8TregRatio < 0.10)
+CD8TregPct <- summarySE(No0Pop, measurevar="X8TregRatio", groupvars=c("Age","Genotype"))
+#Replacing the NA's produced by day 1's
+CD8TregPct[is.na(CD8TregPct)] = 0
+pdf(file = "~/my.work/PhD/Homestatic Expansion Project/Plots/R15ProgressReport_July2019/PercentageOfCD8Tregs.pdf")
+ggplot(CD8TregPct, aes(x=Age, y=X8TregRatio, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=X8TregRatio-se, ymax=X8TregRatio+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Frequency of CD8+Foxp3+ Cells with SE bars", y = "Frequency", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+ggplot(CD8TregPct, aes(x=Age, y=X8TregRatio, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=X8TregRatio-sd, ymax=X8TregRatio+sd), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Frequency of CD8+Foxp3+ Cells with SD bars", y = "Frequency", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+
+ggplot(No0Pop, aes(x=Age, y=X8TregRatio, colour=Genotype, group=Genotype)) + 
+  geom_point(position=pd, size=3) +
+  labs(title = "Frequency of CD8+Foxp3+ Cells", y = "Frequency", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+dev.off()
+```
+#Percentage of activated Cd8
+
+```{r}
+ActCD8 <- summarySE(CD69df, measurevar="CD8CD69_pct", groupvars=c("Age","Genotype"))
+#Replacing the NA's produced by day 1's
+ActCD8[is.na(ActCD8)] = 0
+pdf(file = "~/my.work/PhD/Homestatic Expansion Project/Plots/R15ProgressReport_July2019/PercentageOfCD8CD69.pdf")
+ggplot(ActCD8, aes(x=Age, y=CD8CD69_pct, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD8CD69_pct-se, ymax=CD8CD69_pct+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Frequency of CD8+CD69+ Cells with SE bars", y = "Frequency", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+ggplot(ActCD8, aes(x=Age, y=CD8CD69_pct, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=CD8CD69_pct-sd, ymax=CD8CD69_pct+sd), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Frequency of CD8+CD69+ Cells with SD bars", y = "Frequency", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+
+ggplot(CD69df, aes(x=Age, y=CD8CD69_pct, colour=Genotype, group=Genotype)) + 
+  geom_point(position=pd, size=3) +
+  labs(title = "Frequency of CD8+CD69+ Cells", y = "Frequency", x = "Age in Days") + 
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 20, face = "bold")
+        )
+dev.off()
+
+```
+

@@ -1,0 +1,1287 @@
+---
+title: "HomeostatPlots"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Source for popcount
+```{r}
+#Preparing the data and the function
+library(ggplot2)
+library(scales)
+library(tidyr)
+library(ggbreak)
+
+```
+Some info on the 'pop' dataset
+- 1:18 - meta data associated with the experiment that generated the data
+- 18:42 - Individual events counted/selected by the FCS express at the appropriate gate
+- 43 - Age in integer format; Age(pop[,14]) is a column with the ages saved as factors for the purposes of creating the plots that I first made.
+- 44+ - All calculations created from either 'popcount_V2.R' or this R script. E-mail jonazule@gmail.com if there is any confusion. 
+
+#Setting title size
+```{r}
+
+xAxisTextSize = 15
+yAxisTextSize = 15
+titleAxisTextSize = 10
+AxisTickSize = 13
+
+```
+
+#Plotting Thymus Weights
+```{r}
+
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+#Getting only the Thymus Weights
+popThym = subset(pop, Organ == "Thymus")
+#Making miligram
+popThym$OrganWeight = popThym$OrganWeight * 100 
+#Plotting the Thymus
+
+ggplot(popThym, aes(intage, OrganWeight, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  #scale_x_continuous(breaks = seq(0,57,4), limits = c(-0.8,56))+
+  scale_y_continuous(breaks = seq(0,max(popThym$OrganWeight, na.rm = TRUE), 
+                                  length.out =5), labels = label_number(accuracy = 0.11))+
+  labs(titles = "Thymus Weight", x = "Age in Days", y = "Weight (milligram)")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black", 
+                                    angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line") +
+  xlim(0, 58)+
+  scale_x_break(c(21, 54), scale = 0.2, ticklabels = c(54,56,58))
+
+ggsave("C:/Laptop Backups/HomestaticExpansionProject/Figures/For Dissertation/Experimental/ThyWeight.pdf",
+       width = 7,
+       height = 4)
+
+#######################
+#Excluding Adult sizes
+#######################
+
+# popThymYoung = subset(popThym, intage < 40)
+#MakingPlot
+# ggplot(popThymYoung, aes(intage, OrganWeight, shape = Genotype)) + 
+#   geom_point(position = position_dodge(0.5), size = 4)+
+#   scale_x_continuous(breaks = seq(0,18,2), limits = c(-0.8,18.5))+
+#   scale_y_continuous(breaks = seq(0,max(popThymYoung$OrganWeight, na.rm = TRUE), 
+#                                   length.out =5), labels = label_number(accuracy = 0.11))+
+#   labs(titles = "Thymus Weight", x = "Age in Days", y = "Weight (milligram)")+
+#   theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+#         legend.key = element_rect(fill = "white", colour = "black"),
+#         legend.background = (element_rect(colour= "black", fill = "white")),
+#         axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+#         axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+#         plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+#         axis.ticks.length=unit(.25, "cm"),
+#         text = element_text(size=AxisTickSize))+
+#   stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+
+# ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/ThymusWeight.png",
+#        width = 5.5,
+#        height = 4)
+```
+# Spleen Weight
+```{r}
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+
+#####################
+#     SPLEEN
+#####################
+
+popSpln = subset(pop, Organ == "Spleen")
+#Making the data in milligrams
+popSpln$OrganWeight = popSpln$OrganWeight * 100 
+#removing the day 56 outlier
+popSpln = subset(popSpln, OrganWeight < 75)
+#Plotting the Thymus
+ggplot(popSpln, aes(intage, OrganWeight, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks = seq(0,56,4))+
+  labs(titles = "Spleen Weight", x = "Age in Days", y = "Weight (milligram)")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")+
+  xlim(0, 58)+
+  scale_x_break(c(21, 54), scale = 0.2, ticklabels = c(54,56,58))
+
+
+# ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/WithDay56/SpleenWeight.png",
+#        width = 7,
+#        height = 4)
+
+# #Excluding Adult sizes
+# popSplnYoung = subset(popSpln, intage < 40)
+# 
+# #MakingPlot
+# ggplot(popSplnYoung, aes(intage, OrganWeight, shape = Genotype)) + 
+#   geom_point(position = position_dodge(1), size = 4)+
+#   scale_x_continuous(breaks = seq(0,18,2), limits = c(-0.5,18.5))+
+#   labs(titles = "Spleen Weight", x = "Age in Days", y = "Weight (milligram)")+
+#   theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+#         legend.key = element_rect(fill = "white", colour = "black"),
+#         legend.background = (element_rect(colour= "black", fill = "white")),
+#         axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+#         axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+#         plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+#         axis.ticks.length=unit(.25, "cm"),
+#         text = element_text(size=AxisTickSize))+
+#   stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+# ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/SpleenWeight.png",
+#        width = 5.5,
+#        height = 4)
+```
+
+#Naive T Cells Spleen
+```{r}
+ActivationData = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+ActivationData$NaiveCT = ActivationData$NoTregCD4CT - ActivationData$ActivatedCD4CT
+ActivationDataSpleen = subset(ActivationData, Organ == "Spleen")
+#Changing total cell count to 10**6
+ActivationDataSpleen$NaiveCT = ActivationDataSpleen$NaiveCT * 10**6
+ggplot(ActivationDataSpleen, aes(intage, NaiveCT, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks = seq(0,18,2))+
+  scale_y_continuous(breaks = seq(0,max(ActivationDataSpleen$NaiveCT), length.out = 5), labels =label_scientific(digits = 2) )+
+  labs(titles = "Naive T Cell Total Count", x = "Age in Days", y = "CD4+TCRbeta_high-CD69-Foxp3-")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black", angle = 90, size = xAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+# day18 = subset(ActivationDataSpleen, intage == 18 )
+# day18wt = subset(ActivationDataSpleen, Genotype == "WT")
+# day18ko = subset(ActivationDataSpleen, Genotype == "KO")
+# t.test(day18wt$NaiveCT, day18ko$NaiveCT)
+
+ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/NaiveTCell_Count.png",
+       width = 5.5,
+       height = 4)
+```
+# Treg Plots With Day 56
+```{r}
+
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+popSpln = subset(pop, Organ == "Spleen")
+#removing an outlier and Day 0
+TregData = subset(popSpln, intage > 0)
+#Making converting the x4Treg values to millions
+TregData$X4TregCT = TregData$X4TregCT *10**6
+ggplot(TregData, aes(intage, X4TregCT, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 3)+
+  scale_x_continuous(breaks = seq(4,56,4))+
+  scale_y_continuous(breaks = seq(0,max(TregData$X4TregCT), length.out =5), 
+                     labels = scientific_format(digits = 2))+
+  labs(titles = "Treg Total count", x = "Age in Days", y = "CD4+Foxp3+TCRbeta_high Count")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",  angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")+
+  xlim(0, 58)+
+  scale_x_break(c(21, 54), scale = 0.2, ticklabels = c(54,56,58))
+
+# ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/WithDay56/Treg_Count.png",
+#        width = 7,
+#        height = 4)
+
+##############
+#
+#   Treg Percentage
+#
+##############
+
+ggplot(TregData, aes(intage, X4TregRatio, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks = seq(4,56,4))+
+  scale_y_continuous(breaks = seq(0,max(TregData$X4TregRatio), length.out = 5),
+                     labels = label_percent())+
+  labs(titles = "Treg Percentage", x = "Age in Days", y = "CD4+Foxp3+TCRbeta_high Percentage")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black", angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")+
+  xlim(0, 58)+
+  scale_x_break(c(21, 54), scale = 0.2, ticklabels = c(54,56,58))
+# ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/WithDay56/Treg_Pct.png",
+#        width = 7,
+#        height = 4)
+
+```
+# Treg Plots Young
+```{r}
+library(ggplot2)
+library(scales)
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+#removing an outlier, Day 0, and Day 56
+TregData = subset(pop, X4TregCT < 1 & intage > 0 & intage < 50)
+TregData$X4TregCT = TregData$X4TregCT *10**6
+ggplot(TregData, aes(intage, X4TregCT, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks = seq(4,18,2))+
+  scale_y_continuous(breaks = seq(0,max(TregData$X4TregCT), length.out =5),
+                     labels = scientific_format(digits = 2))+
+  labs(titles = "Treg Total count", x = "Age in Days", y = "CD4+Foxp3+TCRbeta_high Count ")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black", size = 18),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/Treg_Count.pdf",
+       width = 5.5,
+       height = 4)
+
+##############
+#
+#   Treg Percentage
+#
+##############
+
+ggplot(TregData, aes(intage, X4TregRatio, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks = seq(4,18,2))+
+  scale_y_continuous(breaks = seq(0,max(TregData$X4TregRatio), length.out = 5),
+                     labels = label_percent())+
+  labs(titles = "Treg Percentage", x = "Age in Days", y = "CD4+Foxp3+TCRbeta_high Percentage")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black", size = 16),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/Treg_Pct.png",
+       width = 5.5,
+       height = 4)
+```
+#Activated T Cell Plots
+```{r}
+library(ggplot2)
+library(scales)
+ActivationData = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+ActivationData$ActivatedCD4CT =ActivationData$ActivatedCD4CT * 10**6
+ggplot(ActivationData, aes(intage, ActivatedCD4CT, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks =seq(0,18,2))+
+  scale_y_continuous(breaks = seq(0, max(ActivationData$ActivatedCD4CT), 
+                                  length.out = 5), 
+                     labels =  label_scientific(digits = 2))+
+  labs(titles = "Activated T Cell Total Count", x = "Age in Days", y = "CD4+CD69+ Count")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+# ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/ActivatedTCells.pdf",
+#        width = 5.5,
+#        height = 4)
+```
+#CD69 Percentage
+```{r}
+CD69Data = read.csv('C:/Laptop Backups/HomestaticExpansionProject/ModelData/CD69DataFromGen.csv')
+#Removing day 0, because it is always weird
+CD69Data = subset(CD69Data, Age > 0)
+CD69Data$CD4CD69_pct = CD69Data$CD4CD69_pct / 100
+ggplot(CD69Data, aes(Age, CD4CD69_pct, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks = seq(4,20,2))+
+  scale_y_continuous(breaks = seq(0,max(CD69Data$CD4CD69_pct, na.rm = TRUE),
+                                  length.out =5),
+                     labels = label_percent())+
+  labs(titles = "Activated T Cell Percentage", x = "Age in Days", y = "CD4+CD69+ Count")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",
+                                    angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/CD69_Pct.png",
+       width = 5.5,
+       height = 4)
+
+```
+# CD44+CD62L+
+```{r}
+CD69Data = read.csv('C:/Laptop Backups/HomestaticExpansionProject/ModelData/CD69DataFromGen.csv')
+CD69Data = subset(CD69Data, Age > 0)
+CD69Data$CD4CD44CD62L_pct = CD69Data$CD4CD44CD62L_pct /100
+ggplot(CD69Data, aes(Age, CD4CD44CD62L_pct, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks =seq(4,19,2))+
+  scale_y_continuous(breaks = seq(0,max(CD69Data$CD4CD44CD62L_pct, na.rm = TRUE),
+                                  length.out =5),
+                     labels = label_percent())+
+  labs(titles = "CD4CD44CD62L+ Percentage", x = "Age in Days", y = "CD4CD44CD62L+ Percentage")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+# ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/CD44CD62.png",
+#        width = 5.5,
+#        height = 4)
+
+```
+#Plotting Naive and Thymus Derived Tregs
+```{r}
+dfTreg = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+
+#Converting to Millions
+dfTreg$NaiveDerivedTregsCT = dfTreg$NaiveDerivedTregsCT * 10**6
+dfTreg$X4TregFromThymusCT = dfTreg$X4TregFromThymusCT * 10**6
+dfTreg$AllTregs = dfTreg$AllTregs * 10**6
+
+#Naive Derived
+ggplot(dfTreg, aes(intage, NaiveDerivedTregsCT, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks = seq(0,18,2))+
+  scale_y_continuous(breaks = seq(0,max(dfTreg$NaiveDerivedTregsCT), length.out =5),
+                     labels = scientific_format(digits = 2))+
+  labs(titles = "Naive Derived Tregs", x = "Age in Days", y = "CD4+Foxp3+ Count")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/NaiveDerivedTregs.png",
+       width = 5.5,
+       height = 4)
+#Thymus Derived
+ggplot(dfTreg, aes(intage, X4TregFromThymusCT, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks = seq(0,18,2))+
+  scale_y_continuous(breaks = seq(0,max(dfTreg$X4TregFromThymusCT), length.out =5),
+                     labels = scientific_format(digits = 2))+
+  labs(titles = "Thymus Derived Tregs", x = "Age in Days", y = "CD4+Foxp3+ Count")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/ThymusDerivedTregs.png",
+       width = 5.5,
+       height = 4)
+
+#All Tregs
+ggplot(dfTreg, aes(intage, AllTregs, shape = Genotype)) + 
+  geom_point(position = position_dodge(1), size = 4)+
+  scale_x_continuous(breaks = seq(0,18,2))+
+  scale_y_continuous(breaks = seq(0,max(dfTreg$AllTregs), length.out =5),
+                     labels = scientific_format(digits = 2))+
+  labs(titles = "Naive + Thymus Derived Tregs", x = "Age in Days", y = "CD4+Foxp3+ Count")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line")
+ggsave("C:/Laptop Backups/HomestaticExpansionProject/Plots/HomeoPlots/Young/AllTregs.png",
+       width = 5.5,
+       height = 4)
+```
+
+# Calculating Treg Frequency that did not come from Thymus
+```{r}
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+library(dplyr)
+library("Rmisc")
+library("reshape2")
+#Need to remove dates that are not symmetrical for subtractions - Dates are 2/25/2018 and 12/6/2017
+#There is a missing thymus and only one thymus for one of the dates - Incomplete data
+
+popNoInc <- pop[!(pop$intage == 18 & pop$expDate=="2/25/2018" | pop$expDate=="12/6/2017"),]
+#day 0 screwing with the data
+popNoInc = popNoInc[!(popNoInc$Age == "0"),]
+#A d56 spleen doesn't have a thymus partner
+popNoInc = popNoInc[!(popNoInc$FileID == "JA022518WK8M1WTS"),]
+
+################################3
+# Testing
+popTest = subset(popNoInc, intage == 12, select = c(Genotype, intage, Organ, X4TregRatio, expDate))
+#0.070089650 - 0.015605014 = 0.05448464 0.05448464
+#WT 10/25 spleen - this should be the result
+popTest = popTest %>%
+   group_by(intage, Genotype, expDate) %>% #expDate is to subtract only by the thymus from the same experiment
+   mutate(NaiveDerivedTregs = X4TregRatio - X4TregRatio[Organ == 'Thymus'])
+#
+################################
+
+#Grouping and then subtracting Thymus treg freq from Spleen
+popNoInc = popNoInc %>%
+   group_by(Age, Genotype, expDate) %>% #expDate is to subtract only by the thymus from the same experiment
+   mutate(Diff = X4TregRatio - X4TregRatio[Organ == 'Thymus'])
+#Tregs derived from the Thymus
+popNoInc$X4TregFromThymus = popNoInc$X4TregRatio - popNoInc$Diff
+#Replacing the Negative Values with 0
+popNoInc$Diff[popNoInc$Diff < 0] <- 0
+
+#plotting differences
+
+#Removing the same things from the original file as I did for the popNoInc
+pop2 <- pop[!(pop$intage == 18 & pop$expDate=="2/25/2018" | pop$expDate=="12/6/2017"),]
+#day 0 screwing with the data
+pop2 = pop2[!(pop2$Age == "0"),]
+#A d56 spleen doesn't have a thymus partnet
+pop2 = pop2[!(pop2$FileID == "JA022518WK8M1WTS"),]
+
+pop2S = subset(pop2, Organ == "Spleen")
+popNoIncS = subset(popNoInc , Organ == "Spleen")
+
+ggplot(pop2S, aes(x=Age, y=X4TregRatio, colour=Genotype, group=Genotype)) +
+  geom_point(size=3) +
+  labs(title = "Tregulatory Cell Frequencies from the Spleen",
+       y = "Treg Percentages")+
+  ylim(0, 0.175)
+
+# Treg with error bars
+TregError <- summarySE(pop2S, measurevar="X4TregRatio", groupvars=c("Age","Genotype"))
+#Replacing the NA's produced by day 1's
+TregError[is.na(TregError)] = 0
+ggplot(TregError, aes(x=Age, y=X4TregRatio, colour=Genotype, group=Genotype)) + 
+  geom_errorbar(aes(ymin=X4TregRatio-se, ymax=X4TregRatio+se), colour="black", width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3) +
+  labs(title = "Treg Population Percentage in the Spleen", y = "Percent", x = "Age in Days")+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text( size = 15, face = "bold")
+        )
+
+ggplot(popNoIncS, aes(x=Age, y=Diff, colour=Genotype, group=Genotype)) + 
+  geom_point(size=3)+
+  labs(title = "Minus the Thymus Frequencies", 
+       y = "Treg Frequency Minus Thymus Frequency")+
+  ylim(0, 0.175)
+ggplot(popNoIncS, aes(x=Age, y=X4TregFromThymus, colour=Genotype, group=Genotype)) + 
+  geom_point(size=3)+
+  labs(title = "Treg Frequencies from Thymus", 
+       y = "Frequencies from Thymus")+
+  ylim(0, 0.175)
+
+```
+
+#Testing geom line and error bars
+```{r}
+popActiv = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+#+++++++++++++++++++++++++
+# Function to calculate the mean and the standard deviation
+  # for each group
+#+++++++++++++++++++++++++
+# data : a data frame
+# varname : the name of a column containing the variable
+  #to be summariezed
+# groupnames : vector of column names to be used as
+  # grouping variables
+data_summary <- function(data, varname, groupnames){
+  require(plyr)
+  summary_func <- function(x, col){
+    c(mean = mean(x[[col]], na.rm=TRUE),
+      sd = sd(x[[col]], na.rm=TRUE))
+  }
+  data_sum<-ddply(data, groupnames, .fun=summary_func,
+                  varname)
+  data_sum <- rename(data_sum, c("mean" = varname))
+ return(data_sum)
+}
+
+popTregs = subset(popActiv, select = c("Age", "X4TregProlCT", "NaiveDerivedTregsCT", "X4TregFromThymusCT"))
+#Prepare data fro ggplot
+longpopTregs = gather(popTregs, variable, value, -Age)
+
+df2 <- data_summary(longpopTregs, varname="value", 
+                    groupnames=c("Age", "variable"))
+p<- ggplot(df2, aes(x=Age, y=value, group=variable, color=variable)) + 
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin=value-sd, ymax=value+sd), width=.2,
+                 position=position_dodge(0.05))
+
+print(p)
+View(longpopTregs)
+install.packages("tidyr")
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+# Create some data 
+test4 <- data.frame(Sex = rep(c('M', 'F'), 50),
+                    bodytemp = rnorm(100),
+                    length = rnorm(100), 
+                    mass = rnorm(100))
+
+View(test4)
+# Gather the data to 'long' format so the bodytemp, length and mass are all in one column
+longdata <- gather(test4, variable, value, -Sex)
+View(longdata)
+head(longdata)
+
+# Create the summary statistics seperately for sex and variable (i.e. bodytemp, length and mass)
+summary <- longdata %>%
+             group_by(Sex, variable) %>%
+             summarise(mean = mean(value), se = sd(value) / length(value))
+
+# Plot
+ggplot(summary, aes(x = variable, y = mean, fill = Sex)) + 
+  geom_bar(stat = 'identity', position = 'dodge') +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se),                            
+                  width = 0.2,
+                  position = position_dodge(0.9))
+```
+#All Treg sources
+```{r}
+library(tidyr)
+library(ggplot2)
+popActiv = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+popTregs2 = subset(popActiv, select = c("Age", "X4TregProlCT", "NaiveDerivedTregsCT", "ThymicDerivedTregsCT", "X4TregCT"))
+
+popTregs2$X4TregProlCT[popTregs2$X4TregProlCT == 1000000] = NA
+
+#WT
+
+longpopTregs2 = gather(popTregs2, variable, value, -Age)
+ggplot(longpopTregs2, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Different WT Treg sources", x = "Age in Days", y = "Treg counts")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  ylim(0, 1100000)
+
+
+popActivKO = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+popTregsKO = subset(popActivKO, select = c("Age", "X4TregProlCT", "NaiveDerivedTregsCT", "ThymicDerivedTregsCT", "X4TregCT"))
+
+popTregsKO$X4TregProlCT[popTregsKO$X4TregProlCT == 1000000] = NA
+
+#IL-2 KO sources
+
+longpopTregsKO = gather(popTregsKO, variable, value, -Age)
+ggplot(longpopTregsKO, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Different KO Treg sources", x = "Age in Days", y = "Treg counts")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  ylim(0, 1100000)
+
+#P values in those populations
+WTTregProlD14 = subset(longpopTregs2,variable == "X4TregProlCT" & Age == 18 )
+KOTregProlD14 = subset(longpopTregsKO, variable == "X4TregProlCT" & Age == 18 )
+
+t.test(WTTregProlD14$value, KOTregProlD14$value)
+
+
+```
+#KO Proliferating differences
+```{r}
+library(tidyr)
+library(ggplot2)
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+KOProl2 = subset(KOProl, select = c("Age", "NaiveProlCT", "ActivatedProlCT"))
+
+#Prepare data fro ggplot
+
+longKOProl2 = gather(KOProl2, variable, value, -Age)
+ggplot(longKOProl2, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Naive vs. Activated Proliferation", x = "Age in Days", y = "Treg counts")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))
+```
+
+# Naive and other growths
+```{r}
+#SavingData for modeling
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+#             Naive T cell and sub pops                 #
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+
+
+#Preparing the data
+popActT = subset(popActivKO, select = c("Age", "NaiveCT", "ThymicNaive"))
+prolActT = subset(WTProl, select = c("Age", "NaiveProlCT"))
+AcTpops = merge(popActT, prolActT)
+
+longAcTpops = gather(AcTpops, variable, value, -Age)
+
+# plot(ActivatedWTSpleen$Age,ActivatedWTSpleen$NaiveCT, pch = 5,
+#      main = "WT Naive T Cell Sub Populations",
+#      ylab = "Naive T Cell Counts",
+#      xlab = "Age in Days",
+#      ylim = c(0,7300000))
+# points(ActivatedWTSpleen$Age,ActivatedWTSpleen$ThymicNaive, col = "blue")
+# points(WTProl$Age,WTProl$NaiveProlCT, col = "red")
+
+
+#Prepare data fro ggplot
+
+
+View(longAcTpops)
+ggplot(longAcTpops, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Different KO Treg sources", x = "Age in Days", y = "Treg counts")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",
+                                    angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))
+
+
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+#              ActT T cell and sub pops                 #
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+
+
+#Activated T cell Data now
+
+popActT = subset(popActivKO, select = c("Age", "NaiveCT", "ThymicNaive"))
+prolActT = subset(WTProl, select = c("Age", "NaiveProlCT"))
+AcTpops = merge(popActT, prolActT)
+
+longAcTpops = gather(AcTpops, variable, value, -Age)
+
+# plot(ActivatedWTSpleen$Age,ActivatedWTSpleen$NaiveCT, pch = 5,
+#      main = "WT Naive T Cell Sub Populations",
+#      ylab = "Naive T Cell Counts",
+#      xlab = "Age in Days",
+#      ylim = c(0,7300000))
+# points(ActivatedWTSpleen$Age,ActivatedWTSpleen$ThymicNaive, col = "blue")
+# points(WTProl$Age,WTProl$NaiveProlCT, col = "red")
+
+
+#Prepare data fro ggplot
+
+
+View(longAcTpops)
+ggplot(longAcTpops, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Different KO Treg sources", x = "Age in Days", y = "Treg counts")+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))
+
+
+
+# 
+# plot(ActivatedKOSpleen$Age,ActivatedKOSpleen$NaiveCT, pch = 5,
+#      main = "KO Naive T Cell Sub Populations",
+#      ylab = "Naive T Cell Counts",
+#      xlab = "Age in Days",
+#      ylim = c(0,7300000))
+# points(ActivatedKOSpleen$Age,ActivatedKOSpleen$ThymicNaive, col = "blue")
+# points(KOProl$Age,KOProl$NaiveProlCT, col = "red")
+
+# 
+# library(tidyr)
+# library(ggplot2)
+# popActiv = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+# popTregs2 = subset(popActiv, select = c("Age", "X4TregProlCT", "NaiveDerivedTregsCT", "ThymicDerivedTregsCT", "X4TregCT"))
+# 
+# #Prepare data fro ggplot
+# 
+# longpopTregs2 = gather(popTregs2, variable, value, -Age)
+# ggplot(longpopTregs2, aes(x = Age, y = value, color = variable)) + 
+#   geom_point(position = position_dodge(1), size = 2)+
+#   stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+#   labs(titles = "Different WT Treg sources", x = "Age in Days", y = "Treg counts")+
+#   theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+#                  legend.key = element_rect(fill = "white", colour = "black"),
+#                  legend.background = (element_rect(colour= "black", fill = "white")),
+#         axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+#         axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+#         plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+#         axis.ticks.length=unit(.25, "cm"),
+#         text = element_text(size=AxisTickSize))+
+#   ylim(0, 1100000)
+```
+# Activated T cell proliferation comparison
+```{r}
+#SavingData for modeling
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+plot(ActivatedWTSpleen$Age,ActivatedWTSpleen$ActivatedCD4CT, pch = 5,
+     main = "WT Activated T Cell and Sub populations",
+     ylab = "Activated T Cell Counts",
+     xlab = "Age in Days",
+     ylim = c(0, 1400000))
+points(ActivatedWTSpleen$Age,ActivatedWTSpleen$ActivatedNaiveCT, col = "blue")
+points(WTProl$Age,WTProl$ActivatedProlCT, col = "red")
+
+plot(ActivatedKOSpleen$Age,ActivatedKOSpleen$ActivatedCD4CT, pch = 5,
+     main = "KO Activated T Cells and Sub populations",
+     ylab = "Activated T Cell Counts",
+     xlab = "Age in Days",
+     ylim = c(0, 1400000))
+points(ActivatedKOSpleen$Age,ActivatedKOSpleen$ActivatedNaiveCT, col = "blue")
+points(KOProl$Age, KOProl$ActivatedProlCT, col = "red")
+```
+# Treg and it's sub populations
+```{r}
+library(tidyr)
+library(ggplot2)
+
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+#######################################
+#           Wild Type
+#######################################
+
+#Setting up Data
+TregsWT = subset(ActivatedWTSpleen, select = c("X4TregCT", "NaiveDerivedTregsCT", "ThymicDerivedTregsCT", "Age" ))
+LongTregsWT = gather(TregsWT, variable, value, -Age)
+TregsProlWT = subset(WTProl, select = c("X4TregProlCT", "Age"))
+LongTregsProlWT = gather(TregsProlWT, variable, value, -Age)
+LongTregsWT = rbind(LongTregsWT, LongTregsProlWT)
+
+#Changing Names and Order
+LongTregsWT$variable = factor(LongTregsWT$variable, levels = c("X4TregCT", "X4TregProlCT", "NaiveDerivedTregsCT", "ThymicDerivedTregsCT"), 
+                              labels = c("Total Tregs","Proliferating", "Peripherally Derived", "Thymic Derived"))
+#Creating Y axis label
+Ylabel = expression(Cell ~ Counts ~ (10^5))
+
+ggplot(LongTregsWT, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "WT Treg Populations", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        #axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 1030000), breaks = c(0, 250000, 500000, 750000, 1030000), labels = c(0, 2.5, 5, 7.5, 10.3))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+
+
+#######################################
+#           IL-2 KO
+#######################################
+
+#Setting up Data
+TregsKO = subset(ActivatedKOSpleen, select = c("X4TregCT", "NaiveDerivedTregsCT", "ThymicDerivedTregsCT", "Age" ))
+LongTregsKO = gather(TregsKO, variable, value, -Age)
+TregsProlKO = subset(KOProl, select = c("X4TregProlCT", "Age"))
+LongTregsProlKO = gather(TregsProlKO, variable, value, -Age)
+LongTregsKO = rbind(LongTregsKO, LongTregsProlKO)
+
+#Changing Names and Order
+LongTregsKO$variable = factor(LongTregsKO$variable, levels = c("X4TregCT", "X4TregProlCT", "NaiveDerivedTregsCT", "ThymicDerivedTregsCT"), 
+                              labels = c("Total Tregs","Proliferating", "Peripherally Derived", "Thymic Derived"))
+
+ggplot(LongTregsKO, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "KO Treg Populations", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 1030000), breaks = c(0, 250000, 500000, 750000, 1030000), labels = c(0, 2.5, 5, 7.5, 10.3))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+
+```
+#Treg Proliferating
+```{r}
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+WTProl$TregProlWT = WTProl$X4TregProlCT
+#######################################
+#           Wild Type
+#######################################
+
+#Setting up Data
+ProlTregsWT = subset(WTProl, select = c("TregProlWT", "Age"))
+LongProlTregsWT = gather(ProlTregsWT, variable, value, -Age)
+ProlTregsKO = subset(KOProl, select = c("X4TregProlCT", "Age"))
+LongProlTregsKO = gather(ProlTregsKO, variable, value, -Age)
+LongProlTregs = rbind(LongProlTregsWT, LongProlTregsKO)
+
+LongProlTregs$variable = factor(LongProlTregs$variable, levels = c("TregProlWT", "X4TregProlCT"), labels = c("WT Tregs", "KO Tregs"))
+
+#Changing Names and Order
+LongTregsWT$variable = factor(LongTregsWT$variable, levels = c("X4TregCT", "X4TregProlCT", "NaiveDerivedTregsCT", "ThymicDerivedTregsCT"), 
+                              labels = c("Total Tregs","Proliferating", "Peripherally Derived", "Thymic Derived"))
+#Creating Y axis label
+Ylabel = expression(Cell ~ Counts ~ (10^5))
+
+ggplot(LongProlTregs, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Proliferating Treg", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        #axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 820000), breaks = c(0, 205000, 410000, 615000, 820000))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+```
+#Naive Derived Tregs
+```{r}
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+ActivatedWTSpleen$NaiveDerivedTregsCTWT = ActivatedWTSpleen$NaiveDerivedTregsCT
+#######################################
+#           Wild Type
+#######################################
+
+#Setting up Data
+NaiveTregsWT = subset(ActivatedWTSpleen, select = c("NaiveDerivedTregsCTWT", "Age"))
+LongNaiveTregsWT = gather(NaiveTregsWT, variable, value, -Age)
+
+NaiveTregsKO = subset(ActivatedKOSpleen, select = c("NaiveDerivedTregsCT", "Age"))
+LongNaiveTregsKO = gather(NaiveTregsKO, variable, value, -Age)
+LongProlTregs = rbind(LongNaiveTregsWT, LongNaiveTregsKO)
+
+LongProlTregs$variable = factor(LongProlTregs$variable, levels = c("NaiveDerivedTregsCTWT", "NaiveDerivedTregsCT"), labels = c("WT", "KO"))
+
+#Changing Names and Order
+LongTregsWT$variable = factor(LongTregsWT$variable, levels = c("X4TregCT", "X4TregProlCT", "NaiveDerivedTregsCT", "ThymicDerivedTregsCT"), 
+                              labels = c("Total Tregs","Proliferating", "Peripherally Derived", "Thymic Derived"))
+#Creating Y axis label
+Ylabel = expression(Cell ~ Counts )
+
+ggplot(LongProlTregs, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Peripherally Derived Tregs", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        #axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 360000), breaks = c(0, 90000, 180000, 270000, 360000))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+```
+#Thymic Derived Tregs
+```{r}
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+ActivatedWTSpleen$ThymicDerivedTregsCTWT = ActivatedWTSpleen$ThymicDerivedTregsCT
+#######################################
+#           Wild Type
+#######################################
+
+#Setting up Data
+ThymicTregsWT = subset(ActivatedWTSpleen, select = c("ThymicDerivedTregsCTWT", "Age"))
+LongThymicTregsWT = gather(ThymicTregsWT, variable, value, -Age)
+
+ThymicTregsKO = subset(ActivatedKOSpleen, select = c("ThymicDerivedTregsCT", "Age"))
+LongThymicTregsKO = gather(ThymicTregsKO, variable, value, -Age)
+LongThymicTregs = rbind(LongThymicTregsWT, LongThymicTregsKO)
+
+LongThymicTregs$variable = factor(LongThymicTregs$variable, levels = c("ThymicDerivedTregsCTWT", "ThymicDerivedTregsCT"), labels = c("WT", "KO"))
+
+#Creating Y axis label
+Ylabel = expression(Cell ~ Counts)
+
+ggplot(LongThymicTregs, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Thymic Derived Tregs", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        #axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 32000), breaks = c(0, 8000, 16000, 24000, 32000))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+```
+
+
+#Naive T Cells and it's sub populations
+```{r}
+
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+
+#######################################
+#           Wild Type
+#######################################
+
+#Setting up the data
+NaiveWT = subset(ActivatedWTSpleen, select = c("NaiveCT", "ThymicNaive", "Age" ))
+LongNaiveWT = gather(NaiveWT, variable, value, -Age)
+NaiveProlWT = subset(WTProl, select = c("NaiveProlCT", "Age"))
+LongNaiveProlWT = gather(NaiveProlWT, variable, value, -Age)
+LongNaiveWT = rbind(LongNaiveWT, LongNaiveProlWT)
+
+#Changing the Names and order
+LongNaiveWT$variable = factor(LongNaiveWT$variable, levels = c("NaiveCT", "ThymicNaive", "NaiveProlCT"), 
+                              labels = c("Total Naive","Thymic Derived", "Proliferating"))
+#Creating Y axis label
+Ylabel = expression(Cell ~ Counts ~ (10^6))
+
+ggplot(LongNaiveWT, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "WT Naive Populations", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 7300000), breaks = c(0, 1825000, 3650000, 5475000, 7300000), labels = c(0, 1.8, 3.6, 5.4, 7.3))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+
+#######################################
+#           IL-2 KO
+#######################################
+
+#Setting up the data
+NaiveKO = subset(ActivatedKOSpleen, select = c("NaiveCT", "ThymicNaive", "Age" ))
+LongNaiveKO = gather(NaiveKO, variable, value, -Age)
+NaiveProlKO = subset(KOProl, select = c("NaiveProlCT", "Age"))
+LongNaiveProlKO = gather(NaiveProlKO, variable, value, -Age)
+LongNaiveKO = rbind(LongNaiveKO, LongNaiveProlKO)
+
+#Changing the Names and order
+LongNaiveKO$variable = factor(LongNaiveKO$variable, levels = c("NaiveCT", "ThymicNaive", "NaiveProlCT"), 
+                              labels = c("Total Naive","Thymic Derived", "Proliferating"))
+
+ggplot(LongNaiveKO, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "KO Naive Populations", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 7300000), breaks = c(0, 1825000, 3650000, 5475000, 7300000), labels = c(0, 1.8, 3.6, 5.4, 7.3))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+
+```
+#Activated T Cells and it's subpopulations
+```{r}
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+#######################################
+#           Wild Type
+#######################################
+
+#Setting up the data
+ActivatedTWT = subset(ActivatedWTSpleen, select = c("ActivatedCD4CT", "ActivatedNaiveCT", "Age" ))
+LongActivatedTWT = gather(ActivatedTWT, variable, value, -Age)
+ActivatedTProlWT = subset(WTProl, select = c("ActivatedProlCT", "Age"))
+LongActivatedTProlWT = gather(ActivatedTProlWT, variable, value, -Age)
+LongActivatedTWT = rbind(LongActivatedTWT, LongActivatedTProlWT)
+
+#Changing the Names and order
+LongActivatedTWT$variable = factor(LongActivatedTWT$variable, levels = c("ActivatedCD4CT", "ActivatedNaiveCT", "ActivatedProlCT"), 
+                              labels = c("Total Activated CD4","Naive Derived", "Proliferating"))
+
+#Creating Y axis label
+Ylabel = expression(Cell ~ Counts ~ (10^6))
+
+ggplot(LongActivatedTWT, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "WT Activated Populations", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 5330000), breaks = c(0, 1332500, 2665000, 3997500, 5330000), labels = c(0, 1.3, 2.6, 3.9, 5.3))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+
+#######################################
+#           IL-2 KO
+#######################################
+
+#Setting up the data
+ActivatedTKO = subset(ActivatedKOSpleen, select = c("ActivatedCD4CT", "ActivatedNaiveCT", "Age" ))
+LongActivatedTKO = gather(ActivatedTKO, variable, value, -Age)
+ActivatedTProlKO = subset(KOProl, select = c("ActivatedProlCT", "Age"))
+LongActivatedTProlKO = gather(ActivatedTProlKO, variable, value, -Age)
+LongActivatedTKO = rbind(LongActivatedTKO, LongActivatedTProlKO)
+
+#Changing the Names and order
+LongActivatedTKO$variable = factor(LongActivatedTKO$variable, levels = c("ActivatedCD4CT", "ActivatedNaiveCT", "ActivatedProlCT"), 
+                              labels = c("Total Activated CD4","Naive Derived", "Proliferating"))
+
+ggplot(LongActivatedTKO, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "KO Activated Populations", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 5330000), breaks = c(0, 1332500, 2665000, 3997500, 5330000), labels = c(0, 1.3, 2.6, 3.9, 5.3))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+```
+#Naive Derived Activated T Cells
+```{r}
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+
+ActivatedWTSpleen$ActivatedNaiveCTWT = ActivatedWTSpleen$ActivatedNaiveCT
+#######################################
+#           Wild Type
+#######################################
+
+#Setting up Data
+ActivatedNaiveWT = subset(ActivatedWTSpleen, select = c("ActivatedNaiveCTWT", "Age"))
+LongActivatedNaiveWT = gather(ActivatedNaiveWT, variable, value, -Age)
+
+ActivatedNaiveKO = subset(ActivatedKOSpleen, select = c("ActivatedNaiveCT", "Age"))
+LongActivatedNaiveKO = gather(ActivatedNaiveKO, variable, value, -Age)
+LongActivatedNaive = rbind(LongActivatedNaiveWT, LongActivatedNaiveKO)
+
+LongActivatedNaive$variable = factor(LongActivatedNaive$variable, levels = c("ActivatedNaiveCTWT", "ActivatedNaiveCT"), labels = c("WT", "KO"))
+
+#Creating Y axis label
+Ylabel = expression(Cell ~ Counts)
+
+ggplot(LongActivatedNaive, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Naive Derived Activated T Cells", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        #axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 871000), breaks = c(0, 217750, 435500, 653250, 871000))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+
+```
+#Proliferating Activated T Cells
+```{r}
+WTProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/WTProl.csv')
+KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/KOProl.csv')
+ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
+ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
+
+WTProl$ActivatedProlCTWT = WTProl$ActivatedProlCT
+#######################################
+#           Wild Type
+#######################################
+
+#Setting up Data
+ActivatedProlCTWT = subset(WTProl, select = c("ActivatedProlCTWT", "Age"))
+LongActivatedProlCTWT = gather(ActivatedProlCTWT, variable, value, -Age)
+
+ActivatedProlCTKO = subset(KOProl, select = c("ActivatedProlCT", "Age"))
+LongActivatedProlCTKO = gather(ActivatedProlCTKO, variable, value, -Age)
+LongActivatedProlCT = rbind(LongActivatedProlCTWT, LongActivatedProlCTKO)
+
+LongActivatedProlCT$variable = factor(LongActivatedProlCT$variable, levels = c("ActivatedProlCTWT", "ActivatedProlCT"), labels = c("WT", "KO"))
+
+#Creating Y axis label
+Ylabel = expression(Cell ~ Counts)
+
+ggplot(LongActivatedProlCT, aes(x = Age, y = value, color = variable)) + 
+  geom_point(position = position_dodge(1), size = 2)+
+  stat_summary(aes(group=variable, color = variable), fun=mean, geom="line")+
+  labs(titles = "Proliferating Activated T Cells", x = "Age in Days", y = Ylabel)+
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 2),
+                 legend.key = element_rect(fill = "white", colour = "black"),
+                 legend.background = (element_rect(colour= "black", fill = "white")),
+        axis.title.x = element_text(face="bold", colour="black", size=xAxisTextSize),
+        axis.title.y = element_text(face = "bold", colour = "black",                                      angle = 90, size = yAxisTextSize),
+        plot.title = element_text(lineheight=.8, face="bold", size = titleAxisTextSize),
+        #axis.ticks.length=unit(.25, "cm"),
+        text = element_text(size=AxisTickSize))+
+  scale_y_continuous(limits=c(0, 576000), breaks = c(0, 144000, 288000, 432000, 576000))+
+  scale_x_continuous(breaks = c(0,5,10,15,18))+
+  scale_color_manual(values = c("#CA3537", "#82CA35", "#35CAC8", "#7D35CA"))+
+  guides(color = guide_legend("Legend"))
+
+max(LongActivatedProlCT$value)
+seq(0,576000, length.out = 5 )
+```
+
+```{r}
+pop = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+popThym = subset(pop, Organ == "Thymus")
+
+plot(pop$OrganWeight, pop$CD4CT, xlim = c(0, 0.3),
+     main = "Total CD4 CT vs. Thymus Weight",
+     xlab = "Thymus weigth (grams)",
+     ylab = "CD4 Counts (10^6)",
+     pch = 16, cex = 1.3, col = "blue")
+abline(lm(pop$CD4CT~pop$OrganWeight))
+
+cor(pop$CD4CT,pop$OrganWeight, use = "na.or.complete")
+
+#Treg
+plot(pop$OrganWeight, pop$X4TregCT, xlim = c(0, 0.3),
+     main = "Total CD4 CT vs. Thymus Weight",
+     xlab = "Thymus weigth (grams)",
+     ylab = "CD4 Counts (10^6)",
+     pch = 16, cex = 1.3, col = "blue")
+abline(lm(pop$X4TregCT~pop$OrganWeight))
+
+cor(pop$X4TregCT,pop$OrganWeight, use = "na.or.complete")
+```
+

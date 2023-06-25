@@ -1,0 +1,128 @@
+---
+title: "ParameterStudy"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+Minimized = read.csv("~/my.work/PhD/HomestaticExpansionProject/Code/Modeling/Matlab/Data/OldParameterRanges/ParameterRanges21.csv")
+# Minimized = subset(Minimized, Error <200000)
+Low = subset(Minimized,Error > 6000 & Error < 15000)
+Good = subset(Minimized, Error >= 15000 & Error < 45000)
+High = subset(Minimized, Error >= 55000 & Error < 3000000)
+High_Plus = subset(Minimized, Error >= 3000000)
+
+breaksnum = 20
+```
+
+```{r}
+Minimized = read.csv("~/my.work/PhD/HomestaticExpansionProject/Code/Modeling/Matlab/Data/ParameterRanges26.csv")
+Low = subset(Minimized,Error > 5000 & Error < 20000)
+Good = subset(Minimized, Error >= 20000 & Error < 24000)
+High = subset(Minimized, Error >= 24000 & Error < 49000)
+High_Plus = subset(Minimized, Error >= 49000)
+
+breaksnum = 20
+
+```
+
+#All
+```{r}
+
+for (col in 1:ncol(Minimized)) {
+  LowHist = hist(Low[,col], breaks = breaksnum, plot = FALSE)
+  GoodHist = hist(Good[,col], breaks = breaksnum, plot = FALSE)
+  HighHist = hist(High[,col], breaks = breaksnum, plot = FALSE)
+  High_PlusHist = hist(High_Plus[,col], breaks = breaksnum, plot = FALSE)
+  
+  plot(High_PlusHist, col = "red", main = colnames(Minimized)[col],
+       xlab = "Parameter Values")
+  plot(GoodHist, col = "green", add = TRUE)
+  plot(LowHist, col = "yellow", add = TRUE)
+  plot(HighHist, col = "orange", add = TRUE)
+  }
+```
+#Low and Good
+```{r}
+for (col in 1:ncol(Minimized)) {
+  LowHist = hist(Low[,col], breaks = breaksnum, plot = FALSE)
+  GoodHist = hist(Good[,col], breaks = breaksnum, plot = FALSE)
+  
+  plot(GoodHist, col = "green", main = colnames(Minimized)[col],
+       xlab = "Parameter Values")
+  plot(LowHist, col = "yellow", add = TRUE)
+  }
+```
+
+#Low and High
+```{r}
+for (col in 1:ncol(Minimized)) {
+  LowHist = hist(Low[,col], breaks = breaksnum, plot = FALSE)
+  HighHist = hist(High[,col], breaks = breaksnum, plot = FALSE)
+  
+  
+  plot(HighHist, col = "orange", main = colnames(Minimized)[col],
+       xlab = "Parameter Values")
+  plot(LowHist, col = "yellow", add = TRUE)
+  }
+```
+#Low and High Plus
+```{r}
+for (col in 1:ncol(Minimized)) {
+  LowHist = hist(Low[,col], breaks = breaksnum, plot = FALSE)
+  High_PlusHist = hist(High_Plus[,col], breaks = breaksnum, plot = FALSE)
+  
+  plot(High_PlusHist, col = "red", main = colnames(Minimized)[col],
+       xlab = "Parameter Values")
+  plot(LowHist, col = "yellow", add = TRUE)
+  }
+```
+#Good and High
+```{r}
+for (col in 1:ncol(Minimized)) {
+  GoodHist = hist(Good[,col], breaks = breaksnum, plot = FALSE)
+  HighHist = hist(High[,col], breaks = breaksnum, plot = FALSE)
+  
+  plot(HighHist, col = "orange", main = colnames(Minimized)[col],
+       xlab = "Parameter Values")
+  plot(GoodHist, col = "green", add = TRUE)
+  
+  }
+```
+#Good vs High_Plus
+```{r}
+for (col in 1:ncol(Minimized)) {
+  GoodHist = hist(Good[,col], breaks = breaksnum, plot = FALSE)
+  High_PlusHist = hist(High_Plus[,col], breaks = breaksnum, plot = FALSE)
+  
+  plot(High_PlusHist, col = "red", main = colnames(Minimized)[col],
+       xlab = "Parameter Values")
+  plot(GoodHist, col = "green", add = TRUE)
+  }
+```
+#High vs High_Plus
+```{r}
+for (col in 1:ncol(Minimized)) {
+  HighHist = hist(High[,col], breaks = breaksnum, plot = FALSE)
+  High_PlusHist = hist(High_Plus[,col], breaks = breaksnum, plot = FALSE)
+  
+  plot(High_PlusHist, col = "red", main = colnames(Minimized)[col],
+       xlab = "Parameter Values")
+  plot(HighHist, col = "orange", add = TRUE)
+  }
+```
+
+
+
+
+
+
+
+
+
+
+
+

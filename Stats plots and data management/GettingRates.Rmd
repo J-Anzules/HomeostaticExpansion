@@ -1,0 +1,364 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+#Getting the CD4 T cell Data
+```{r}
+#How we get all of the data
+# source("~/my.work/PhD/Homestatic Expansion Project/Code/Rscripts/popCount_V2.R")
+ActivatedData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+SpleenOnly = subset(pop, Organ == "Spleen")
+
+WTSpleen = subset(SpleenOnly, Genotype == "WT")
+KOSpleen = subset(SpleenOnly, Genotype == "KO")
+
+
+#Fits a straight line so we can get the slope of that line
+
+#CD4 Count in WT and KO
+lin1<-lm(data=WTSpleen, CD4CT~intage)
+summary(lin1)$coefficients[2]
+
+lin2<-lm(data=KOSpleen, CD4CT~intage)
+summary(lin2)$coefficients[2]
+
+#CD4 Count in WT and KO pre 12 days
+WTSpleenpre12 = subset(WTSpleen, intage < 12)
+KOSpleenpre12 = subset(KOSpleen, intage < 12)
+#WT
+lin3<-lm(data=WTSpleenpre12, CD4CT~intage)
+summary(lin3)$coefficients[2]
+#KO
+lin4<-lm(data=KOSpleenpre12, CD4CT~intage)
+summary(lin2)$coefficients[2]
+
+
+#CD4 Coutn in WT and KO post 9 days old
+WTSpleenPost9 = subset(WTSpleen, intage > 9)
+KOSpleenPost9 = subset(KOSpleen, intage > 9)
+#WT
+lin5<-lm(data=WTSpleenPost9, CD4CT~intage)
+summary(lin5)$coefficients[2]
+#KO
+lin6<-lm(data=KOSpleenPost9, CD4CT~intage)
+summary(lin6)$coefficients[2]
+
+```
+
+#Getting the CD4 T cell - Activation Data
+```{r}
+ActivatedData = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+SpleenOnly = subset(ActivatedData, Organ == "Spleen")
+WTSpleen = subset(SpleenOnly, Genotype == "WT")
+KOSpleen = subset(SpleenOnly, Genotype == "KO")
+#Fits a straight line so we can get the slope of that line
+
+#CD4 Count in WT and KO
+lin1<-lm(data=WTSpleen, CD4CT~intage)
+summary(lin1)$coefficients[2]
+
+lin2<-lm(data=KOSpleen, CD4CT~intage)
+summary(lin2)$coefficients[2]
+
+#CD4 Count in WT and KO pre 12 days
+WTSpleenpre12 = subset(WTSpleen, intage < 12)
+KOSpleenpre12 = subset(KOSpleen, intage < 12)
+#WT
+lin3<-lm(data=WTSpleenpre12, CD4CT~intage)
+summary(lin3)$coefficients[2]
+#KO
+lin4<-lm(data=KOSpleenpre12, CD4CT~intage)
+summary(lin4)$coefficients[2]
+
+
+#CD4 Coutn in WT and KO post 9 days old
+WTSpleenPost9 = subset(WTSpleen, intage > 9)
+KOSpleenPost9 = subset(KOSpleen, intage > 9)
+#WT
+lin5<-lm(data=WTSpleenPost9, CD4CT~intage)
+summary(lin5)$coefficients[2]
+#KO
+lin6<-lm(data=KOSpleenPost9, CD4CT~intage)
+summary(lin6)$coefficients[2]
+
+```
+#Getting activated T cell rates and Naive
+```{r}
+#The data i made using a python script which is found in the Rscript folder
+ActivatedData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+
+#Spleen and WT/KO splitting
+ActivatedSpleenWT = subset(ActivatedData, Organ == "Spleen" & Genotype == "WT")
+ActivatedSpleenKO = subset(ActivatedData, Organ == "Spleen" & Genotype == "KO")
+
+#Checking to see if the differences in date 'look' significant - it does.
+#plot(ActivatedSpleenWT$intage, ActivatedSpleenWT$ActivatedCD4CT)
+#plot(ActivatedSpleenKO$intage, ActivatedSpleenKO$ActivatedCD4CT)
+#Making data into solid counts, not 10^6
+ActivatedSpleenWT$ActivatedCD4CT = ActivatedSpleenWT$ActivatedCD4CT * 10**6
+
+#0-A WT & KO
+lin1<-lm(data=ActivatedSpleenWT, ActivatedCD4CT~intage)
+summary(lin1)$coefficients[2]
+
+lin2 = lm(data = ActivatedSpleenKO, ActivatedCD4CT~intage)
+summary(lin2)$coefficients[2]
+
+#0-9 WT & KO
+ActivatedSpleenWT09 = subset(ActivatedSpleenWT, intage < 12)
+ActivatedSpleenKO09 = subset(ActivatedSpleenKO, intage < 12)
+
+lin3<-lm(data=ActivatedSpleenWT09, ActivatedCD4CT~intage)
+summary(lin3)$coefficients[2]
+
+lin4 = lm(data = ActivatedSpleenKO09, ActivatedCD4CT~intage)
+summary(lin4)$coefficients[2]
+
+#12-A WT & KO
+ActivatedSpleenWT012 = subset(ActivatedSpleenWT, intage > 9)
+ActivatedSpleenKO012 = subset(ActivatedSpleenKO, intage > 9)
+
+lin5<-lm(data=ActivatedSpleenWT012, ActivatedCD4CT~intage)
+summary(lin5)$coefficients[2]
+
+lin6 = lm(data = ActivatedSpleenKO012, ActivatedCD4CT~intage)
+summary(lin6)$coefficients[2]
+
+#########
+#
+#   Getting naive T
+#
+#######
+ActivatedSpleenWT$NaiveTCT = ActivatedSpleenWT$NaiveTCT * 10**6
+
+#0-A WT & KO
+lin7<-lm(data=ActivatedSpleenWT, NaiveTCT~intage)
+summary(lin7)$coefficients[2]
+
+lin8 = lm(data = ActivatedSpleenKO, NaiveTCT~intage)
+summary(lin8)$coefficients[2]
+
+#0-9 WT & KO
+ActivatedSpleenWT09 = subset(ActivatedSpleenWT, intage < 12)
+ActivatedSpleenKO09 = subset(ActivatedSpleenKO, intage < 12)
+
+lin9<-lm(data=ActivatedSpleenWT09, NaiveT~intage)
+summary(lin9)$coefficients[2]
+
+lin10 = lm(data = ActivatedSpleenKO09, NaiveT~intage)
+summary(lin10)$coefficients[2]
+
+#12-A WT & KO
+ActivatedSpleenWT012 = subset(ActivatedSpleenWT, intage > 9)
+ActivatedSpleenKO012 = subset(ActivatedSpleenKO, intage > 9)
+
+lin11<-lm(data=ActivatedSpleenWT012, NaiveT~intage)
+summary(lin11)$coefficients[2]
+
+lin12 = lm(data = ActivatedSpleenKO012, NaiveT~intage)
+summary(lin12)$coefficients[2]
+
+
+
+```
+
+#Getting Treg Rates
+```{r}
+pop = read.csv("~/my.work/PhD/HomestaticExpansionProject/ModelData/AfterCalculations.csv")
+
+#Splitting Spleen WT and KO
+WTSpleen = subset(pop, Organ == "Spleen" & Genotype == "WT")
+KOSpleen = subset(pop, Organ == "Spleen" & Genotype == "KO")
+
+#0-A WT and KO
+WTSpleenno56 = subset(WTSpleen, intage < 50)
+lin1<-lm(data=WTSpleenno56, X4TregCT~intage)
+summary(lin1)$coefficients[2]
+
+lin2 = lm(data = KOSpleen, X4TregCT~intage)
+summary(lin2)$coefficients[2]
+
+
+#0-9 WT and KO
+WTSpleen09 = subset(WTSpleen, intage < 12)
+KOSpleen09 = subset(KOSpleen, intage < 12)
+
+lin3<-lm(data=WTSpleen09, X4TregCT~intage)
+summary(lin3)$coefficients[2]
+
+lin4 = lm(data = KOSpleen09, X4TregCT~intage)
+summary(lin4)$coefficients[2]
+
+#12-A WT and KO
+WTSpleen012 = subset(WTSpleen, intage > 9)
+KOSpleen012 = subset(KOSpleen, intage > 9)
+
+lin5<-lm(data=WTSpleen012, X4TregCT~intage)
+summary(lin5)$coefficients[2]
+
+lin6 = lm(data = KOSpleen012, X4TregCT~intage)
+summary(lin6)$coefficients[2]
+
+```
+#Getting Treg Rates - With Activated Data
+```{r}
+ActivatedData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+
+#Splitting Spleen WT and KO
+WTSpleen = subset(ActivatedData, Organ == "Spleen" & Genotype == "WT")
+KOSpleen = subset(ActivatedData, Organ == "Spleen" & Genotype == "KO")
+
+#0-A WT and KOpop
+lin1<-lm(data=WTSpleen, X4TregCT~intage)
+summary(lin1)$coefficients[2]
+
+lin2 = lm(data = KOSpleen, X4TregCT~intage)
+summary(lin2)$coefficients[2]
+
+#0-9 WT and KO
+WTSpleen09 = subset(WTSpleen, intage < 12)
+KOSpleen09 = subset(KOSpleen, intage < 12)
+
+lin3<-lm(data=WTSpleen09, X4TregCT~intage)
+summary(lin3)$coefficients[2]
+
+lin4 = lm(data = KOSpleen09, X4TregCT~intage)
+summary(lin4)$coefficients[2]
+
+#12-A WT and KO
+WTSpleen012 = subset(WTSpleen, intage > 9)
+KOSpleen012 = subset(KOSpleen, intage > 9)
+
+lin5<-lm(data=WTSpleen012, X4TregCT~intage)
+summary(lin5)$coefficients[2]
+
+lin6 = lm(data = KOSpleen012, X4TregCT~intage)
+summary(lin6)$coefficients[2]
+```
+
+
+
+
+
+
+
+
+
+  
+#Checking KO 09 Again
+```{r}
+ActivatedData = read.csv("C:/Laptop Backups/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+
+SplactKO09 = subset(ActivatedData, Organ == "Spleen" & Genotype == "KO" & intage < 12)
+
+#All CD4s
+lin1<-lm(data=SplactKO09, CD4CT~intage)
+summary(lin1)$coefficients[2]
+#Naive
+lin3<-lm(data=SplactKO09, NaiveT~intage)
+summary(lin3)$coefficients[2]
+#Activated
+lin5<-lm(data=SplactKO09, ActivatedCD4CT~intage)
+summary(lin5)$coefficients[2]
+
+
+```
+#Getting Thymus growth rate
+```{r}
+#I renamed the Homestatic folder so it doesn't have spaces
+ActivatedData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+ThymusOnly = subset(ActivatedData, Organ == "Thymus")
+WTThymus = subset(ThymusOnly, Genotype == "WT")
+#Changing the weight of Thymus from grams to milligrams
+WTThymus$OrganWeight = WTThymus$OrganWeight * 10**3
+
+#Fits a straight line so we can get the slope of that line
+
+#CD4 Count in WT and KO
+lin1<-lm(data=WTThymus, OrganWeight~intage)
+summary(lin1)$coefficients[2]
+
+max(WTThymus$OrganWeight, na.rm = TRUE)
+```
+#IL-2 Dependant Treg and Activated T cell replication
+```{r}
+#I renamed the Homestatic folder so it doesn't have spaces
+ActivatedData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+SpleenOnly = subset(ActivatedData, Organ == "Spleen")
+WTSpleen = subset(SpleenOnly, Genotype == "WT")
+
+#Change values to 10**6 format
+WTSpleen$X4TregProlCT = WTSpleen$X4TregProlCT * 10**6
+WTSpleen$CD4ProlCT = WTSpleen$CD4ProlCT * 10**6
+
+#Getting the Treg data
+#Fits a straight line so we can get the slope of that line
+#CD4 Count in WT and KO
+lin1<-lm(data=WTSpleen, X4TregProlCT~intage)
+summary(lin1)$coefficients[2]
+
+#KI6+ activated T cells
+lin2<-lm(data=WTSpleen, CD4ProlCT~intage)
+summary(lin2)$coefficients[2]
+
+
+
+```
+#Death Rate of Tregs and Tcells
+```{r}
+#I renamed the Homestatic folder so it doesn't have spaces
+DeathData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/Version8_death-GM.csv")
+
+
+#Spleen and WT
+SpleenOnly = subset(DeathData, Organ == "Spleen" & Genotype == "WT")
+
+#Fixing the Percentages
+SpleenOnly$X.CD4.dead = SpleenOnly$X.CD4.dead * 0.01
+SpleenOnly$X.CD4.Treg.dead = SpleenOnly$X.CD4.Treg.dead * 0.01 
+
+#Removing NA's
+SpleenOnly = SpleenOnly[!is.na(SpleenOnly$X.CD4.Treg.dead), ]
+# SpleenOnly$X.CD4.Treg.dead
+
+#Calculating CD4 and Treg dead
+SpleenOnly$DeadCD4.CT = SpleenOnly$X.CD4.dead * SpleenOnly$CD4CT * 10**6
+SpleenOnly$DeadTreg.CT = SpleenOnly$X.CD4.Treg.dead * SpleenOnly$X4TregCT * 10**6
+
+
+#Fits a straight line so we can get the slope of that line
+
+#Death CD4 rate
+lin1<-lm(data=SpleenOnly, DeadCD4.CT~Age)
+summary(lin1)$coefficients[2]
+
+#Dead Treg Rate
+lin2<-lm(data=SpleenOnly, DeadTreg.CT~Age)
+summary(lin2)$coefficients[2]
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Prepping data for Suzanne
+```{r}
+#The data i made using a python script which is found in the Rscript folder
+ActivatedData = read.csv("/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/ActivatedCD4pop.csv")
+#Calculating the naive T cell counts
+ActivatedData$NaiveT_CT = ActivatedData$CD4CT - ActivatedData$ActivatedCD4CT
+#Splitting the data to WT and Spleen
+AllDataForModel = subset(ActivatedData, Organ == "Spleen" & Genotype == "WT" )
+
+write.csv(AllDataForModel, "/home/jon/my.work/PhD/HomestaticExpansionProject/ModelData/ActivatedDataForModel_WTSPLEEN.csv")
+```

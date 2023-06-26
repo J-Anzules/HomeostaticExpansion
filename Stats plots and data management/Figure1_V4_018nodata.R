@@ -51,6 +51,7 @@ ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/
 #=============================================================================================#
 #--------------------------- Figure 1A - Early Activation Percentage--------------------------#
 #=============================================================================================#
+#Reduce all y axis lower limit by 0.0769 of the max value
 # Percentage of CD44+CD62L-CD69+ cells
 
 ActT = read.csv('C:/Laptop Backups/HomestaticExpansionProject/ModelData/TCellActivationSummary_filled.csv')
@@ -72,8 +73,8 @@ CD4CD69 =
   ggplot(ActT, aes(Age, pct_CD4_CD69_pos, color = Genotype, shape = Genotype))+
   scale_color_manual(values = c(KOColor, WTColor))+
   geom_point(position = position_dodge(1), size = dotSize)+
-  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.3))+
-  scale_y_continuous(limits=c(0, 40), breaks = c(0, 10, 20, 30, 40))+
+  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
+  scale_y_continuous(limits=c(-2.052, 40), breaks = c(0, 10, 20, 30, 40))+
   labs(titles = "Early Activation Percentage", x = "Age in Days", y =YlabelA)+
   theme(panel.background = element_rect(fill = "white", colour = "black"),
         # legend.position = c(0.15, 0.85),
@@ -87,7 +88,7 @@ CD4CD69 =
                                     fill = "NA",
                                     size = panelBorder))+
     stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line", lwd = 1.3)
-
+# 0 - (40 * 0.0513)
   
 #=============================================================================================#
 #------------------------- Figure 1B - Early Activation Count --------------------------------#
@@ -122,12 +123,12 @@ EarlyActivated_CT =
         panel.border = element_rect(color = "black",
                                     fill = "NA",
                                     size = panelBorder))+
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8), limits=c(0, 0.85))+
-  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.3))+
+  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8), limits=c(-0.043605, 0.85))+
+  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend("Legend"))
 
-  max(LongEarlyActivatedCD4CT$value)
+  # 0 - (0.85*0.0513)
 #=============================================================================================#
 #-------------------- Figure 1C - Non proliferating Activated T Cells % ----------------------#
 #=============================================================================================#
@@ -165,14 +166,14 @@ NonProlActT_pct =
         panel.border = element_rect(color = "black",
                                     fill = "NA",
                                     size = panelBorder))+
-  scale_y_continuous(breaks = c(40, 60, 80, 100), limits=c(39, 101))+
-  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.3))+
+  scale_y_continuous(breaks = c(40, 60, 80, 100), limits=c(34.87, 105))+
+  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend("Legend"))
 
-
+# 40 - (100*0.0513)
 #=============================================================================================#
-#-------------------- Figure 2D - Non proliferating Activated T Cells Count ----------------------#
+#-------------------- Figure 1D - Non proliferating Activated T Cells Count ----------------------#
 #=============================================================================================#
 #Percentage of CD44+CD62L-KI-67-
 
@@ -212,15 +213,14 @@ ggplot(LongNonProlActivatedCT, aes(x = Age, y = value, color = variable, shape =
        panel.border = element_rect(color = "black",
                                    fill = "NA",
                                    size = panelBorder))+
-  scale_y_continuous(breaks =seq(0,2138000, length.out = 5 ))+
-  scale_y_continuous(limits=c(0, 4300000), breaks = c(0, 1000000, 2000000, 3000000, 4000000), 
+  scale_y_continuous(limits=c(-235980, 4600000), breaks = c(0, 1000000, 2000000, 3000000, 4000000), 
                      labels = c(0, 1, 2, 3, 4))+
-  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.3))+
+  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend("Legend"))
-
+# 0 - (4600000*0.0513)
 #=============================================================================================#
-#------------------- Figure 2E - Proliferating Activated T Cells Percentage ------------------#
+#------------------- Figure 1E - Proliferating Activated T Cells Percentage ------------------#
 #=============================================================================================#
 #Count of CD44+CD62L-KI-67+
 
@@ -254,15 +254,14 @@ ggplot(LongActivatedProlRatio, aes(x = Age, y = value, color = variable, shape =
        panel.border = element_rect(color = "black",
                                    fill = "NA",
                                    size = panelBorder))+
-  # scale_y_continuous(breaks =seq(0,2138000, length.out = 5 ))+
-  #scale_y_continuous(limits=c(0, 7072000), breaks = c(0, 1768000, 3536000, 5304000, 7072000), labels = c(0, 1.7, 3.5, 5.3, 7.0))+
-  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.3))+
+  scale_y_continuous(breaks = c(0, 20, 40, 60), limits=c(-3.078, 65))+
+  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend("Legend"))
 
-
+# 0 - (60*0.0513)
 #=============================================================================================#
-#----------------------- Figure 2F - Proliferating Activated T Cells Count -------------------#
+#----------------------- Figure 1F - Proliferating Activated T Cells Count -------------------#
 #=============================================================================================#
 WTProl$ActivatedProlCTWT = WTProl$ActivatedProlCT
 
@@ -291,16 +290,16 @@ ggplot(LongActivatedProlCT, aes(x = Age, y = value, color = variable, shape = va
        panel.border = element_rect(color = "black",
                                    fill = "NA",
                                    size = panelBorder))+
-  # scale_y_continuous(breaks =seq(0,2138000, length.out = 5 ))+
-  scale_y_continuous(limits=c(0, 1500000), breaks = c( 0, 500000, 1000000, 1500000), 
+  scale_y_continuous(limits=c(-76900.01, 1500000), breaks = c( 0, 500000, 1000000, 1500000), 
                      labels = c(0, 0.5, 1.0, 1.5))+
-  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.3))+
+  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend("Legend"))
 
+# 0 - (1500000*0.0513)
 
 #=============================================================================================#
-#--------------------------------- Figure 2G - Treg Percentage -------------------------------#
+#--------------------------------- Figure 1G - Treg Percentage -------------------------------#
 #=============================================================================================#
 ActivatedWTSpleen$X4TregRatio = ActivatedWTSpleen$X4TregRatio * 100
 ActivatedKOSpleen$X4TregRatio = ActivatedKOSpleen$X4TregRatio * 100
@@ -333,13 +332,13 @@ ggplot(LongX4TregRatio, aes(x = Age, y = value, color = variable, shape = variab
        panel.border = element_rect(color = "black",
                                    fill = "NA",
                                    size = panelBorder))+
-  # scale_y_continuous(breaks = seq(0,3880000, length.out = 5))+
-  #  scale_y_continuous(limits=c(0, 7072000), breaks = c(0, 1768000, 3536000, 5304000, 7072000), labels = c(0, 1.7, 3.5, 5.3, 7.0))+
-  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.3))+
+  scale_y_continuous(limits=c(0, 16.2), breaks = c( 0, 4, 8, 12, 16), 
+                     labels = c(0, 4, 8, 12, 16))+
+  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend("Legend"))
 
-
+# 1.079 - (16*0.0513)
 
 
 #=============================================================================================#
@@ -373,14 +372,14 @@ ggplot(LongX4TregCT, aes(x = Age, y = value, color = variable, shape = variable)
                                     fill = "NA",
                                     size = panelBorder))+
   # scale_y_continuous(breaks = seq(0,3880000, length.out = 5))+
-  scale_y_continuous(limits=c(0, 1200000), breaks = c(0, 400000, 800000, 1200000), 
+  scale_y_continuous(limits=c(-61560, 1200000), breaks = c(0, 400000, 800000, 1200000), 
                      labels = c(0, 0.4, 0.8, 1.2))+
-  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.3))+
+  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend(guide_legend(title = "Genotype")))
 
 
-
+# 0-(1200000*0.0513)
 
 #-----------------------------------------------------------------------------------------------#
 #---------------------------------- Final Figure arrangement------------------------------------#
@@ -390,7 +389,7 @@ a = ggarrange(CD4CD69, EarlyActivated_CT, NonProlActT_pct, NonProlActT_CT, ProlA
               labels = c("A", "B", "C", "D", "E", "F", "G", "H"),
               ncol = 2, nrow = 4, widths = c(1, 1), align = "v")
 # height - 1559 width = 837
-ggsave(file = "C:/Laptop Backups/HomestaticExpansionProject/Figures/ForPaper/Figure 1 - Wt vs KO/Figure2_V4_018nodata.pdf", a,
+ggsave(file = "C:/Laptop Backups/HomestaticExpansionProject/Figures/ForPaper/Figure 1 - Wt vs KO/Figure1_V4_018nodata.pdf", a,
        height = 11,
        width = 8)
 
@@ -415,7 +414,7 @@ ggsave(file = "C:/Laptop Backups/HomestaticExpansionProject/Figures/ForPaper/Fig
 #         text = element_text(size=20))+
 #   # scale_y_continuous(breaks =seq(0,2138000, length.out = 5 ))+
 #   scale_y_continuous(limits=c(0, 7072000), breaks = c(0, 1768000, 3536000, 5304000, 7072000), labels = c(0, 1.7, 3.5, 5.3, 7.0))+
-#   scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.3))+
+#   scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
 #   scale_color_manual(labels = c("WT", "IL-2 KO"), values = c(KOColor, WTColor))+
 #   guides(color = guide_legend(guide_legend(title = "Genotype")))
 # 

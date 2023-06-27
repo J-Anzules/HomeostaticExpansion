@@ -1,3 +1,12 @@
+############################################
+#
+# Generates a figure that will be edited in inkscape
+# TODO: I need to make the file locations a relative location
+#
+#
+#
+
+
 library(scales)
 library(ggplot2)
 library(scales)
@@ -74,7 +83,7 @@ CD4CD69 =
   scale_color_manual(values = c(KOColor, WTColor))+
   geom_point(position = position_dodge(1), size = dotSize)+
   scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
-  scale_y_continuous(limits=c(-2.052, 40), breaks = c(0, 10, 20, 30, 40))+
+  scale_y_continuous(limits=c(-2.052, 40), breaks = c(0, 13, 26, 39))+
   labs(titles = "Early Activation Percentage", x = "Age in Days", y =YlabelA)+
   theme(panel.background = element_rect(fill = "white", colour = "black"),
         # legend.position = c(0.15, 0.85),
@@ -89,7 +98,7 @@ CD4CD69 =
                                     size = panelBorder))+
     stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line", lwd = 1.3)
 # 0 - (40 * 0.0513)
-  
+# seq(0, 39, length.out = 4)
 #=============================================================================================#
 #------------------------- Figure 1B - Early Activation Count --------------------------------#
 #=============================================================================================#
@@ -123,12 +132,14 @@ EarlyActivated_CT =
         panel.border = element_rect(color = "black",
                                     fill = "NA",
                                     size = panelBorder))+
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8), limits=c(-0.043605, 0.85))+
+  scale_y_continuous(breaks = c(0.0, 0.3, 0.6, 0.9), limits=c(-0.043605, 0.9))+
   scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend("Legend"))
 
-  # 0 - (0.85*0.0513)
+# 0 - (0.85*0.0513)
+# seq(0, 0.9, length.out = 4)
+
 #=============================================================================================#
 #-------------------- Figure 1C - Non proliferating Activated T Cells % ----------------------#
 #=============================================================================================#
@@ -213,11 +224,14 @@ ggplot(LongNonProlActivatedCT, aes(x = Age, y = value, color = variable, shape =
        panel.border = element_rect(color = "black",
                                    fill = "NA",
                                    size = panelBorder))+
-  scale_y_continuous(limits=c(-235980, 4600000), breaks = c(0, 1000000, 2000000, 3000000, 4000000), 
-                     labels = c(0, 1, 2, 3, 4))+
+  scale_y_continuous(limits=c(-235980, 4400000), breaks = c(0, 1400642, 2801284, 4201926), 
+                     labels = c(0.0, 1.4, 2.8, 4.2))+
   scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend("Legend"))
+
+# max(LongNonProlActivatedCT$value)
+# seq(0, 4201926, length.out = 4)
 # 0 - (4600000*0.0513)
 #=============================================================================================#
 #------------------- Figure 1E - Proliferating Activated T Cells Percentage ------------------#
@@ -332,14 +346,13 @@ ggplot(LongX4TregRatio, aes(x = Age, y = value, color = variable, shape = variab
        panel.border = element_rect(color = "black",
                                    fill = "NA",
                                    size = panelBorder))+
-  scale_y_continuous(limits=c(0, 16.2), breaks = c( 0, 4, 8, 12, 16), 
-                     labels = c(0, 4, 8, 12, 16))+
+  scale_y_continuous(limits=c(0, 18), breaks = c(0, 6, 12, 18))+
   scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend("Legend"))
 
 # 1.079 - (16*0.0513)
-
+# seq(0, 18, length.out = 4)
 
 #=============================================================================================#
 #----------------------------------- Figure 2H - Treg Count ----------------------------------#

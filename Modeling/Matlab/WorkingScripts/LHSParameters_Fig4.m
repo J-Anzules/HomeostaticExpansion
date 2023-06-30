@@ -1,4 +1,9 @@
 clc; clear; close all;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This plot controls the test for preventing autoimmune disease in my
+% simulation. It also generates the figures seen in the manuscript
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %-------------------------------------------------------------------------------------------------------%
 %                                       Only make changes here
 % Here are the choices {'mu', 'z', 'g', 'alpha', 'c', 'epsilon', 'b_R', 'beta', 'a', 'b_T', 'e_T', 'e_R', 'kA',...

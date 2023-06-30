@@ -1,4 +1,9 @@
 function PlottingFillPrm_Fig4_color(ModelRates, StatsOfCells, tx, PlotType,CondKeys, PctChange)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This script generates the log transformation of my simulation results for
+% figure. There isn't enough of a difference between normal and log form to
+% justify make the figure in log form.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %{
 The order of the plots 

@@ -65,9 +65,6 @@ ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/
 
 ActT = read.csv('C:/Laptop Backups/HomestaticExpansionProject/ModelData/TCellActivationSummary_filled.csv')
 
-# plot(ActT$Age,  ActT$pct_CD4_CD44_pos_CD62L_neg)
-# plot(ActT$Age, ActT$pct_CD4_CD69_pos)
-# ActT$Genotype
 ActT$Genotype[ActT$Genotype == "IL-2-KO"] = "KO"
 ActT$Genotype[ActT$Genotype == "IL-2-HET"] = "WT"
 ActT$Genotype[ActT$Genotype == "CD25-KO"] = "KO"

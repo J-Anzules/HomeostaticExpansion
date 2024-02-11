@@ -109,6 +109,7 @@ hist(highProlKO$intage, main = "HignProl CD4 WT")
 t.test(highProlWT$CD4ProlRatio, highProlKO$CD4ProlRatio, alternative = "two.sided")
 t.test(highFreqWT$CD4nonActivated_Ratio, highFreqKO$CD4nonActivated_Ratio, alternative = "two.sided")
 ```
+
 ```{r}
 #Testing the proliferation of CD4s of ages 9 and above
 prol9nGreaterWT = subset(pop, intage >= 9 & Genotype == "WT" & intage < 56 )

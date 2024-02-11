@@ -1,0 +1,70 @@
+close all; clc
+global tx
+
+% FileName = '../Data/ParameterSearch_opnall4.csv';
+% EntryNumber = 31; 
+FileName = '../Data/ParameterSearch_opnall5.csv';
+EntryNumber = 563;%49; 
+% FileName = '../Data/ParameterSets.csv';
+% EntryNumber = 27;%23; %27Favorite one in parameter sets
+p = GetParameters(EntryNumber, FileName);
+
+mu=         p(1);%Thymic Naive
+z =         p(2); %Prol Naive
+g =         p(3); %Naive Death
+alpha =     p(4); %Thymic Tregs
+c =         p(5); %Naive Derived Tregs
+epsilon =   p(6); %Treg Prol
+b_R =       p(7); %Treg Death
+beta =      p(8); %Activation Rate
+a =         p(9); %Activated Prol
+b_T =       p(10); %ActT Death
+e_T =       p(11); %ActT Consumption
+e_R =       p(12); %Treg Consumption
+kA =        p(13); %Beta Suppression
+j =         p(14); %Deactivation
+kB =        p(15); %Treg Death Suppression
+n =         p(16);
+d =         p(17); %IL-2 production Rate
+nK =        p(19); %Naive Carrying Capacity
+rK =        p(20); %Treg Carrying Capacity
+Ki =        p(21); %Half rate for activation suppression boost
+Kj =        p(22);% Half rate for deactivation boost
+dKO =       p(23);
+
+% mu=         p(1);%Thymic Naive
+% z =         0.04;%p(2); %Prol Naive
+% g =         p(3); %Naive Death
+% alpha =     0.00039938;%p(4); %Thymic Tregs
+% c =         0.001;%p(5); %Naive Derived Tregs
+% epsilon =   0.008;%p(6); %Treg Prol
+% b_R =       p(7); %Treg Death
+% beta =      p(8); %Activation Rate
+% a =         p(9); %Activated Prol
+% b_T =       p(10); %ActT Death
+% e_T =       p(11); %ActT Consumption
+% e_R =       p(12); %Treg Consumption
+% kA =        p(13); %Beta Suppression
+% j =         p(14); %Deactivation
+% kB =        p(15); %Treg Death Suppression
+% n =         p(16);
+% d =         p(17); %IL-2 production Rate
+% nK =        p(19); %Naive Carrying Capacity
+% rK =        p(20); %Treg Carrying Capacity
+% Ki =        p(21); %Half rate for activation suppression boost
+% Kj =        p(22);% Half rate for deactivation boost
+% dKO =       p(23);
+
+
+%Do not change this order
+p0 = [alpha, a, kA, e_T, e_R, g, b_T, b_R, epsilon, mu, beta, c, kB, j, z, n, d, nK, rK, Ki, Kj, dKO];
+
+tx = 0:432; %Maximum amount of time - 18 days
+
+Genotype = [1, 2];
+
+for i = Genotype
+    PlottingResults(p0, i)
+end
+
+PlottingEverything(p0)

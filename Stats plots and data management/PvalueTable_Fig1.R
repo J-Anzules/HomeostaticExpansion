@@ -244,7 +244,7 @@ column_of_interest <- "YourColumnNameHere"
 comparison_type <- "greater" # or "less", depending on your hypothesis
 
 
-perform_t_test_for_column()
+perform_t_test_for_column(WTProl, KOProl, "ActivatedProlCT")
 
 
 

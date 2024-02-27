@@ -1,6 +1,6 @@
 Minimized = read.csv("C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/Data/ParameterSearch_mu_0.39_0.42.csv")
 
-hist(Minimized$Error, breaks = 30)
+hist(Minimized$Error, breaks = 30, xlim = c(2500, 4500))
 plot(Minimized$Error, breaks = 30)
 
 
@@ -117,3 +117,4 @@ for (col in 8:ncol(Minimized)) {
   hist(Minimized[,col],
        main = colnames(Minimized)[col], breaks= 40)
 }
+

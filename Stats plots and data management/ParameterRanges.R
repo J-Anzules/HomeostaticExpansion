@@ -160,54 +160,55 @@ summary(Min$Error)
 #-------------------------------------------------------#
 #             Open ALL      
 #-------------------------------------------------------#
-Min = read.csv("C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/Data/ParameterSearch_opnall5.csv")
-dim(Min)
-summary(Min$Error)
-3431 - sd(Min$Error)
-3431 + sd(Min$Error)
+Min_all = read.csv("C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/Data/ParameterSearch_opnall5.csv")
+dim(Min_all)
+summary(Min_all$Error)
+3431 - sd(Min_all$Error)
+3431 + sd(Min_all$Error)
 
 3677 - 2959
 
 
 # How many are clustered on the wall 
-muLow = subset(Min, mu < 0.4065)
-muHigh = subset(Min, mu >= 0.4065)
+muLow = subset(Min_all, mu < 0.4065)
+muHigh = subset(Min_all, mu >= 0.4065)
 
 nrow(muLow)/(nrow(muLow)+nrow(muHigh))
 nrow(muHigh)
 
 # Beta
-betaLow = subset(Min, beta < 0.3005)
-betaHigh = subset(Min, beta >= 0.3005)
+betaLow = subset(Min_all, beta < 0.3005)
+betaHigh = subset(Min_all, beta >= 0.3005)
 
 nrow(betaLow)
 nrow(betaHigh)
 
 nrow(betaHigh) / (nrow(betaLow)+ nrow(betaHigh))
 
-plot(Min$mu, Min$Error)
-cor(Min$mu, Min$Error)
-plot(Min$z, Min$Error)
-plot(Min$g, Min$Error)
-plot(Min$alpha, Min$Error)
-plot(Min$c, Min$Error)
-plot(Min$epsilon, Min$Error)
-cor(Min$epsilon, Min$Error)
-plot(Min$bR, Min$Error)
-plot(Min$beta, Min$Error)
-plot(Min$a, Min$Error)
-plot(Min$bT, Min$Error)
-cor(Min$bT, Min$Error)
-plot(Min$kA, Min$Error)
-plot(Min$j, Min$Error)
-plot(Min$kB, Min$Error)
-plot(Min$nK, Min$Error)
-plot(Min$Ki, Min$Error)
-plot(Min$Kj, Min$Error)
-hist(Min$Error, breaks = 100, xlim = c(2100, 4500),
+plot(Min_all$mu, Min_all$Error)
+cor(Min_all$mu, Min_all$Error)
+plot(Min_all$z, Min_all$Error)
+plot(Min_all$g, Min_all$Error)
+plot(Min_all$alpha, Min_all$Error)
+plot(Min_all$c, Min_all$Error)
+plot(Min_all$epsilon, Min_all$Error)
+cor(Min_all$epsilon, Min_all$Error)
+plot(Min_all$bR, Min_all$Error)
+plot(Min_all$beta, Min_all$Error)
+plot(Min_all$a, Min_all$Error)
+plot(Min_all$bT, Min_all$Error)
+cor(Min_all$bT, Min_all$Error)
+plot(Min_all$kA, Min_all$Error)
+plot(Min_all$j, Min_all$Error)
+plot(Min_all$kB, Min_all$Error)
+plot(Min_all$nK, Min_all$Error)
+plot(Min_all$Ki, Min_all$Error)
+plot(Min_all$Kj, Min_all$Error)
+hist(Min_all$Error, breaks = 100, xlim = c(2100, 4500),
      xlab = "Relative Error Range",
-     main = "Relative Error Counts",
+     main = "Relative Error Distribution",
      ylab = "Frequency Counts")
+summary(Min_all$Error)
 
 ?hist
 xAxisTextSize = 21

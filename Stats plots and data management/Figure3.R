@@ -299,7 +299,7 @@ NaiveActTKO = ggplot(KOData, aes(x=hours, y=ActivatedNaiveCT)) + geom_point(size
 
 
 ###########################################
-#  WT - Acitve
+#  WT - Activated
 ##############################################
 
 # Total Activated

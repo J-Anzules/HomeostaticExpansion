@@ -40,10 +40,45 @@ actSpln_columns <-  c("EarlyActivatedCD4CT", "X4TregRatio", "X4TregCT", "Activat
 
 col_of_interest <- rbind(prol_columns, actSpln_columns)
 
+col_of_interst2 <- c("NonProlActivatedRatio", "NonProlActivatedCT", "ActivatedProlRatio",
+                     "ActivatedProlCT", "EarlyActivatedCD4CT", "X4TregRatio", "X4TregCT", "ActivatedCD4CT" )
 
 #####
 #-----------------------------------------------#
-#         PCA
+#         PCA 2
+#-----------------------------------------------#
+# Subset the dataset to include only the columns of interest and Age and Genotype for labeling
+dataForPCA <- combinedDataset[, c(col_of_interest, "Age", "Genotype")]
+
+# Perform PCA, excluding the Age and Genotype columns for PCA computation
+pcaResults <- prcomp(dataForPCA[, col_of_interest], center = TRUE, scale. = TRUE)
+
+# Extract PCA scores and add Age and Genotype information
+pcaData <- data.frame(pcaResults$x)
+pcaData$Age <- dataForPCA$Age
+pcaData$Genotype <- dataForPCA$Genotype
+
+unique(dataForPCA$Age)
+
+# Plot with circles colored by Age
+ggplot(pcaData, aes(x = PC1, y = PC2, color = as.factor(Age), shape = Genotype)) +
+  geom_point(size = 3) + # Adjust point size for better visibility
+  theme_minimal() +
+  scale_color_manual(values = c("4" = "blue", "7" = "green", "9" = "red", "12" = "purple", "14" = "orange", "18" = "yellow"),
+                     name = "Age",
+                     breaks = c("4", "7", "9", "12", "14", "18"),
+                     labels = c("Age 4", "Age 7", "Age 9", "Age 12", "Age 14", "Age 18")) +
+  scale_shape_manual(values = c("WT" = 17, "KO" = 16),  # 16 is a circle, 17 is a triangle
+                     name = "Genotype") +
+  labs(title = "PCA Plot with Age and Genotype",
+       x = "Principal Component 1",
+       y = "Principal Component 2")
+
+
+
+#####
+#-----------------------------------------------#
+#         PCA 1
 #-----------------------------------------------#
 # Get indices of "Age" and "Genotype" columns
 ageIndex <- which(names(combinedDataset) == "Age")

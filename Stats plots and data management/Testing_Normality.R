@@ -293,12 +293,12 @@ print(normalityActT_test_fail)
 write.csv(normalityActT_test_fail, 
           "C:/Users/jonan/Documents/HomeostaticExpansion/Manuscript/Figures/P-value Table/Shapiro_Wilk_ActT_Normal_columns.csv", row.names = FALSE)
 
-nor_dist_reference <- c(c(4, "X4TregRatio"), c(4, "ActivatedProlRatio"),
-                        c(4, "NonProlActivatedRatio"), c(4, "ActivatedProlRatio"),
-                        c(4, "pct_CD4_CD44_pos_CD62L_neg"), c(4, "pct_CD4_CD69_pos"),
-                        c(12, "pct_CD4_CD44_pos_CD62L_neg"), 
-                        c(14, "pct_CD4_CD44_pos_CD62L_neg"), c(13, "pct_CD4_CD69_pos"),
-                        c(18, "X4TregRatio"), c(18, "pct_CD4_CD69_pos"))
+# nor_dist_reference <- c(c(4, "X4TregRatio"), c(4, "ActivatedProlRatio"),
+#                         c(4, "NonProlActivatedRatio"), c(4, "ActivatedProlRatio"),
+#                         c(4, "pct_CD4_CD44_pos_CD62L_neg"), c(4, "pct_CD4_CD69_pos"),
+#                         c(12, "pct_CD4_CD44_pos_CD62L_neg"), 
+#                         c(14, "pct_CD4_CD44_pos_CD62L_neg"), c(13, "pct_CD4_CD69_pos"),
+#                         c(18, "X4TregRatio"), c(18, "pct_CD4_CD69_pos"))
 
 
 

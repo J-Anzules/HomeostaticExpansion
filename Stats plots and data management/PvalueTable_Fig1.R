@@ -18,7 +18,7 @@ KOProl = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Ma
 ActivatedWTSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedWTSpleen.csv')
 ActivatedKOSpleen = read.csv('C:/Laptop Backups/HomestaticExpansionProject/Code/Modeling/Matlab/RawData/ActivatedKOSpleen.csv')
 
-ShaWilks.test = read.csv("C:/Users/jonan/Documents/HomeostaticExpansion/Manuscript/Figures/P-value Table/Shapiro_Wilk_Test.csv")
+# ShaWilks.test = read.csv("C:/Users/jonan/Documents/HomeostaticExpansion/Manuscript/Figures/P-value Table/Shapiro_Wilk_Test.csv")
 # preparing T cell summary
 
 ActT = read.csv('C:/Laptop Backups/HomestaticExpansionProject/ModelData/TCellActivationSummary_filled.csv')
@@ -275,6 +275,14 @@ perform_custom_test <- function(dataset_type, columns_of_interest, default_compa
                                n_values=character(),
                                stringsAsFactors=FALSE)
   
+  all_results_failed <- data.frame(column_of_interest=character(),
+                               age=integer(),
+                               p_value=numeric(),
+                               test=character(),
+                               hypothesis=character(),
+                               n_values=character(),
+                               stringsAsFactors=FALSE)
+  
   # Columns requiring 'less' comparison
   columns_less_comparison <- c("X4TregCT", "X4TregRatio")
   
@@ -344,12 +352,19 @@ perform_custom_test <- function(dataset_type, columns_of_interest, default_compa
                                                              test=test_type,
                                                              hypothesis=comparison_type,
                                                              n_values=paste(n_values_wt, n_values_ko, sep=", ")))
+        } else {
+          all_results_failed <- rbind(all_results_failed, data.frame(column_of_interest=column_of_interest,
+                                                                 age=age,
+                                                                 p_value=test_result$p.value,
+                                                                 test=test_type,
+                                                                 hypothesis=comparison_type,
+                                                                 n_values=paste(n_values_wt, n_values_ko, sep=", ")))
         }
       }
     }
   }
   
-  return(all_results_df)
+  return(list(passed = all_results_df, failed = all_results_failed))
 }
 
 prol_columns <- c("NonProlActivatedRatio", "NonProlActivatedCT", "ActivatedProlRatio",
@@ -357,10 +372,10 @@ prol_columns <- c("NonProlActivatedRatio", "NonProlActivatedCT", "ActivatedProlR
 
 actSpln_columns <-  c("EarlyActivatedCD4CT", "X4TregRatio", "X4TregCT", "ActivatedCD4CT" )
 
-# # Example usage
-# default_comparison_type <- "greater" # Default comparison type
-# Perform analysis for 'prol' and 'activated spleen' dataset columns with the updated function
-results_prol <- perform_custom_test("prol", prol_columns)
+results <- perform_custom_test("prol", prol_columns)
+
+results_prol <- results$passed
+results_prol_failed <- results$failed
 
 results_activated_spleen <- perform_custom_test("activated spleen", actSpln_columns)
 # results_activated_spleen
@@ -373,7 +388,16 @@ file_path <- "C:/Users/jonan/Documents/HomeostaticExpansion/Manuscript/Figures/P
 write.csv(all_results_df, file_path,row.names = FALSE)
 
 
+#-----------------------------------------------------------------------------#
+#                               Looking at Naive
+#-----------------------------------------------------------------------------#
 
+actT_naive_columns <- c("ThymicNaive", "NaiveCT")
+prol_naive_columns <- c("NaiveProlRatio", "NaiveProlCT")
+
+naive_acT_results <- perform_custom_test("activated spleen", actT_naive_columns)
+naive_actT_passed <- naive_acT_results$passed
+naive_actT_failed <- naive_acT_results$failed
 
 ######
 #----------------------------------------------------------------#

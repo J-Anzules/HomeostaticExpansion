@@ -1,6 +1,7 @@
 #####################################################################
 # Started: Feb, 8, 2023
-# Purpose: Create a table of p-values for the figure 1 data
+# Purpose: Create a table of p-values for the figure 1 data. Which test
+#           performed will be determined by a normality test: Shapiro-wilks
 # Author: Jonathan Anzules
 # Email: jonanzule@gmail.com
 # 

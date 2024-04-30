@@ -6,6 +6,10 @@ This project explores the systemic differences between a healthy and autoimmune 
 ![Alt text](./Images/ModelDiagram.png "Modeling Homeostatic Expansion")
 
 -------------------------
+
+## Where to Start
+The QuickSimulation.m script is the easiest bit of code to go in and start exploring the dynamics of the model. Improvements to the accessibility of this script is planned for the future.
+
 #### Below is a file tree of the most important parts of my project:
 
 
@@ -38,7 +42,7 @@ HomeostaticExpaction
 1. **Modeling Folder** - Contains the scripts that run the simulation, optimization/minimizing algorithm, and sensitivity analysis. Currently, only done in Matlab, but will also be available in Python in the future
 2. **Matlab Folder** - Simulations and exploratory scripts written in Matlab
     * **RawData Folder** - Contains the data that my model attempts to replicate. Analyzed and prepared by scripts in the folder "Stats plots and data management"
-    * **Residuals Folder** - Calculates the residuals between the model and data for any given parameter sets. Needs to be updated to the current version of the model
+    * **Residuals Folder** - Calculates the residuals between the model and data for any given parameter sets.
     * **Examples** - Various scripts that I used as inspiration for the structure of my algorithms.
     * **WorkingScript** - Contains all of the scripts necessary to run the simulation, fit model to data, and conduct sensitivity analysis
         * **ModelandCellGrowth.m** - The main script for minimizing the Rsquare value calculated by comparing the the simulation to the data.
@@ -55,5 +59,4 @@ HomeostaticExpaction
     * **StatsForPopCount_V2Results.R** - Calculates the statistical comparison of all cellular populations at different time points. Plots are also made for visualization of the data
 4. **Python** - Code in this folder will replicate all simulations, optimization, and sensitivity analysis done in the Matlab folder, but in Python
 
-## Where to Start
-The QuickSimulation.m script is the easiest bit of code to go in and start exploring the dynamics of the model. Improvements to the accessibility of this script is planned for the future.
+

@@ -83,8 +83,7 @@ CD4CD44CD62L =
   ggplot(ActT, aes(Age, pct_CD4_CD44_pos_CD62L_neg, color = Genotype, shape = Genotype))+
   scale_color_manual(values = c(KOColor, WTColor))+
   geom_point(position = position_dodge(1), size = dotSize)+
-  scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
-  # scale_y_continuous(limits=c(-2.052, 40), breaks = c(0, 13, 26, 39))+
+  # scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   labs(titles = "Activated CD4 T cell Percentage", x = "Age in Days", y =YlabelC_alt)+
   theme(panel.background = element_rect(fill = "white", colour = "black"),
         # legend.position = c(0.15, 0.85),
@@ -97,10 +96,14 @@ CD4CD44CD62L =
         panel.border = element_rect(color = "black",
                                     fill = "NA",
                                     size = panelBorder))+
-  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line", lwd = 1.3)
+  stat_summary(aes(group=Genotype, color = Genotype), fun=mean, geom="line", lwd = 1.3)+
+  scale_y_continuous(breaks = c(0, 25, 50, 75), 
+                     limits=c(-3.711, 75))
 
+# max(ActT$pct_CD4_CD44_pos_CD62L_neg, na.rm = TRUE)
+# lowlim = 0 - (72.34*0.0513)
 # 1.079 - (16*0.0513)
-# seq(0, 18, length.out = 4)
+# seq(0, 72.34, length.out = 4)
 
 #=============================================================================================#
 #----------------------------- Figure 2D_alt - CD44+CD62 Count -------------------------------#
@@ -133,14 +136,21 @@ CD4CD44CD62L_CT =
         panel.border = element_rect(color = "black",
                                     fill = "NA",
                                     size = panelBorder))+
-  # scale_y_continuous(breaks = seq(0,3880000, length.out = 5))+
-  # scale_y_continuous(limits=c(-61560, 1200000), breaks = c(0, 400000, 800000, 1200000), 
-                     # labels = c(0, 0.4, 0.8, 1.2))+
+  scale_y_continuous(limits = c(-272951.2, 5400000), 
+                     breaks = c(0, 1773562 , 3547124 , 5320686), 
+                     labels = c("0", "1.8M", "3.5M", "5.3M"))+
   scale_x_continuous(breaks = c(0,5,10,15,18), limits=c(0,18.8))+
   scale_color_manual(values = c(KOColor, WTColor))+
   guides(color = guide_legend(guide_legend(title = "Genotype")))
 
+# max(LongActivatedCD4CT$value, na.rm = TRUE)
+# 0 - (5320686*0.0513)
+# seq(0, 5320686, length.out = 4)
 
+
+#--------------------------------------------------------------------------#
+#                               Saving
+#--------------------------------------------------------------------------#
 
 cd44_plot = ggarrange(CD4CD44CD62L, CD4CD44CD62L_CT,
               labels = c("C", "D"),
@@ -148,6 +158,6 @@ cd44_plot = ggarrange(CD4CD44CD62L, CD4CD44CD62L_CT,
 # height - 1559 width = 837
 ggsave(file = "C:/Users/jonan/Documents/HomeostaticExpansion/Manuscript/Figures/Figure 1 - Wt vs KO/cd44_alt_plot.pdf", cd44_plot,
        height = 3,
-       width = 8)
+       width = 9)
   
   

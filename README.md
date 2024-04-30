@@ -3,7 +3,7 @@
 
 This project explores the systemic differences between a healthy and autoimmune system. We represent the homeostatic dynamics that work properly during healthy development and the cascading failure seen in the IL-2 knock system that leads to autoimmune disease. Below is a diagram of the model:
 
-![Alt text](./ModelDiagram4.png "Modeling Homeostatic Expansion")
+![Alt text](../ModelDiagram.png "Modeling Homeostatic Expansion")
 
 -------------------------
 #### Below is a file tree of the most important parts of my project:

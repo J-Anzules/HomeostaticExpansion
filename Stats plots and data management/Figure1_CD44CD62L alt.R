@@ -1,12 +1,3 @@
-############################################
-#
-# Generates a figure that will be edited in inkscape
-# TODO: I need to make the file locations a relative location
-#
-#
-#
-
-
 library(scales)
 library(ggplot2)
 library(scales)
@@ -401,11 +392,7 @@ a = ggarrange(CD4CD69, EarlyActivated_CT, NonProlActT_pct, NonProlActT_CT, ProlA
               labels = c("A", "B", "C", "D", "E", "F", "G", "H"),
               ncol = 2, nrow = 4, widths = c(1, 1), align = "v")
 # height - 1559 width = 837
-# ggsave(file = "C:/Laptop Backups/HomestaticExpansionProject/Figures/ForPaper/Figure 1 - Wt vs KO/Figure1_V4_018nodata.pdf", a,
-#        height = 11,
-#        width = 8)
-
-ggsave(file = "C:/Users/jonan/Documents/HomeostaticExpansion/Manuscript/Figures/Figure 1 - Wt vs KO/Figure1_V4_018nodata.pdf", a,
+ggsave(file = "C:/Laptop Backups/HomestaticExpansionProject/Figures/ForPaper/Figure 1 - Wt vs KO/Figure1_V4_018nodata.pdf", a,
        height = 11,
        width = 8)
 

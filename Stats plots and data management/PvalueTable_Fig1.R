@@ -235,11 +235,13 @@ for (column_of_interest in ActT_columns) {
       # If the age-column combination is in the normally distributed reference, use t.test
       test_result <- tryCatch(t.test(ko_data, wt_data, alternative="greater"), 
                               error = function(e) list(p.value = NA, statistic = NA))
+      test_to_use = "t.test"
       
     } else {
       # Otherwise, use wilcox.test
       test_result <- tryCatch(wilcox.test(ko_data, wt_data, alternative="greater", exact = FALSE), 
                               error = function(e) list(p.value = NA, statistic = NA))
+      test_to_use = "wilcox"
     }
     
     # Number of values for WT and KO groups
@@ -247,7 +249,7 @@ for (column_of_interest in ActT_columns) {
     n_values_ko <- length(ko_data)
     
     # Check if p-value is < 0.05 and append the results to the dataframe
-    if (test_result$p.value <= 0.05) {
+    if (test_result$p.value <= 0.1) {
       ActT_results_df <- rbind(ActT_results_df, data.frame(column_of_interest=column_of_interest,
                                                            age=age,
                                                            p_value=test_result$p.value,
@@ -258,7 +260,14 @@ for (column_of_interest in ActT_columns) {
   }
 }
 
-print(ActT_results_df)
+
+# wt_data_test <- ActT[ActT$Genotype == "WT" & ActT$Age == 14, "pct_CD4_CD69_pos"]
+# ko_data_test <- ActT[ActT$Genotype == "KO" & ActT$Age == 14, "pct_CD4_CD69_pos"]
+# 
+# t.test(ko_data_test, wt_data_test, alternative = "greater")
+# 
+# 
+# print(ActT_results_df)
 
 #####
 #----------------------------------------------------------------#
@@ -382,7 +391,18 @@ results_activated_spleen <- perform_custom_test("activated spleen", actSpln_colu
 # results_activated_spleen
 
 
-all_results_df <- rbind(ActT_results_df, results_prol, results_activated_spleen)
+all_results_df <- rbind(ActT_results_df, results_prol, results_activated_spleen$passed)
+
+library(dplyr)
+
+all_results_df <- all_results_df %>%
+  mutate(Significance = case_when(
+    p_value < 0.0001 ~ "****",
+    p_value < 0.001  ~ "***",
+    p_value < 0.01   ~ "**",
+    p_value < 0.05   ~ "*",
+    TRUE             ~ ""  # Default case
+  ))
 
 
 file_path <- "C:/Users/jonan/Documents/HomeostaticExpansion/Manuscript/Figures/P-value Table/pvalueTable3.csv"

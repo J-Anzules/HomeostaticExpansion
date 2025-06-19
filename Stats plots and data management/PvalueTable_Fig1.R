@@ -559,116 +559,134 @@ nor_dist_flat <- sapply(nor_dist_reference, function(x) paste(x[1], x[2], sep="_
 
 
 
-perform_custom_test <- function(dataset_type, columns_of_interest, default_comparison_type = "greater") {
-  # Initialize an empty dataframe to store all results
-  all_results_df <- data.frame(column_of_interest=character(),
-                               age=integer(),
-                               p_value=numeric(),
-                               test=character(),
-                               hypothesis=character(),
-                               n_values=character(),
-                               stringsAsFactors=FALSE)
+# perform_custom_test <- function(dataset_type, columns_of_interest, default_comparison_type = "greater") {
+#   # Initialize an empty dataframe to store all results
+#   all_results_df <- data.frame(column_of_interest=character(),
+#                                age=integer(),
+#                                p_value=numeric(),
+#                                test=character(),
+#                                hypothesis=character(),
+#                                n_values=character(),
+#                                stringsAsFactors=FALSE)
+# 
+#   all_results_failed <- data.frame(column_of_interest=character(),
+#                                    age=integer(),
+#                                    p_value=numeric(),
+#                                    test=character(),
+#                                    hypothesis=character(),
+#                                    n_values=character(),
+#                                    stringsAsFactors=FALSE)
+# 
+#   # Columns requiring 'less' comparison
+#   columns_less_comparison <- c("X4TregCT", "X4TregRatio")
+# 
+#   # # Columns requiring a t-test
+#   # data_ttest <- c("NonProlActivatedRatio", "ActivatedProlRatio", "X4TregRatio")
+# 
+#   # Iterate over each column of interest
+#   for (column_of_interest in columns_of_interest) {
+#     # Determine the comparison type based on the column
+#     comparison_type <- ifelse(column_of_interest %in% columns_less_comparison, "less", default_comparison_type)
+# 
+#     # Select appropriate datasets based on dataset_type
+#     if (dataset_type == "prol") {
+#       WT_data <- WTProl
+#       KO_data <- KOProl
+#     } else if (dataset_type == "activated spleen") {
+#       WT_data <- ActivatedWTSpleen
+#       KO_data <- ActivatedKOSpleen
+#     } else {
+#       stop("Invalid dataset type provided.")
+#     }
+# 
+#     # Get all unique ages from both datasets
+#     all_ages <- unique(c(WT_data$Age, KO_data$Age))
+# 
+#     # Loop through each age
+#     for (age in all_ages) {
+#       # Subset the data for the current age
+#       wt_age_data <- subset(WT_data, Age == age)[, column_of_interest, drop=FALSE]
+#       ko_age_data <- subset(KO_data, Age == age)[, column_of_interest, drop=FALSE]
+# 
+#       # Construct a key for lookup
+#       check_key <- paste(age, column_of_interest, sep="_")
+# 
+#       # Check if both subsets have data
+#       if (nrow(wt_age_data) > 0 & nrow(ko_age_data) > 0) {
+# 
+#         # Decide which test to use based on the reference
+#         if (check_key %in% nor_dist_flat) {
+#           # If the age-column combination is in the normally distributed reference, use t.test
+#           test_result <- tryCatch(t.test(ko_age_data[[1]], wt_age_data[[1]], alternative=comparison_type),
+#                                   error = function(e) list(p.value = NA, statistic = NA))
+#           test_type = "t.test"
+#         } else {
+#           # Otherwise, use wilcox.test
+#           test_result <- tryCatch(wilcox.test(ko_age_data[[1]], wt_age_data[[1]], alternative=comparison_type, exact = FALSE),
+#                                   error = function(e) list(p.value = NA, statistic = NA))
+#           test_type = "wilcox"
+#         }
+# 
+# 
+#         # if (test_type == "t.test") {
+#         #   test_result <- t.test(ko_age_data[[1]], wt_age_data[[1]], alternative=comparison_type)
+#         # } else {
+#         #   test_result <- wilcox.test(ko_age_data[[1]], wt_age_data[[1]], alternative=comparison_type, exact = FALSE)
+#         # }
+# 
+#         # Number of values for WT and KO
+#         n_values_wt <- nrow(wt_age_data)
+#         n_values_ko <- nrow(ko_age_data)
+# 
+#         # Append to all_results_df if p-value <= 0.05
+#         if (test_result$p.value <= 0.05) {
+#           all_results_df <- rbind(all_results_df, data.frame(column_of_interest=column_of_interest,
+#                                                              age=age,
+#                                                              p_value=test_result$p.value,
+#                                                              test=test_type,
+#                                                              hypothesis=comparison_type,
+#                                                              n_values=paste(n_values_wt, n_values_ko, sep=", ")))
+#         } else {
+#           all_results_failed <- rbind(all_results_failed, data.frame(column_of_interest=column_of_interest,
+#                                                                      age=age,
+#                                                                      p_value=test_result$p.value,
+#                                                                      test=test_type,
+#                                                                      hypothesis=comparison_type,
+#                                                                      n_values=paste(n_values_wt, n_values_ko, sep=", ")))
+#         }
+#       }
+#     }
+#   }
+# 
+#   return(list(passed = all_results_df, failed = all_results_failed))
+# }
+# 
+# #-----------------------------------------------------------------------------#
+# #                               Looking at Naive
+# #-----------------------------------------------------------------------------#
+# 
+# actT_naive_columns <- c("ThymicNaive", "NaiveCT")
+# prol_naive_columns <- c("NaiveProlRatio", "NaiveProlCT")
+# 
+# naive_acT_results <- perform_custom_test("activated spleen", actT_naive_columns)
+# naive_actT_passed <- naive_acT_results$passed
+# naive_actT_failed <- naive_acT_results$failed
 
-  all_results_failed <- data.frame(column_of_interest=character(),
-                                   age=integer(),
-                                   p_value=numeric(),
-                                   test=character(),
-                                   hypothesis=character(),
-                                   n_values=character(),
-                                   stringsAsFactors=FALSE)
-
-  # Columns requiring 'less' comparison
-  columns_less_comparison <- c("X4TregCT", "X4TregRatio")
-
-  # # Columns requiring a t-test
-  # data_ttest <- c("NonProlActivatedRatio", "ActivatedProlRatio", "X4TregRatio")
-
-  # Iterate over each column of interest
-  for (column_of_interest in columns_of_interest) {
-    # Determine the comparison type based on the column
-    comparison_type <- ifelse(column_of_interest %in% columns_less_comparison, "less", default_comparison_type)
-
-    # Select appropriate datasets based on dataset_type
-    if (dataset_type == "prol") {
-      WT_data <- WTProl
-      KO_data <- KOProl
-    } else if (dataset_type == "activated spleen") {
-      WT_data <- ActivatedWTSpleen
-      KO_data <- ActivatedKOSpleen
-    } else {
-      stop("Invalid dataset type provided.")
-    }
-
-    # Get all unique ages from both datasets
-    all_ages <- unique(c(WT_data$Age, KO_data$Age))
-
-    # Loop through each age
-    for (age in all_ages) {
-      # Subset the data for the current age
-      wt_age_data <- subset(WT_data, Age == age)[, column_of_interest, drop=FALSE]
-      ko_age_data <- subset(KO_data, Age == age)[, column_of_interest, drop=FALSE]
-
-      # Construct a key for lookup
-      check_key <- paste(age, column_of_interest, sep="_")
-
-      # Check if both subsets have data
-      if (nrow(wt_age_data) > 0 & nrow(ko_age_data) > 0) {
-
-        # Decide which test to use based on the reference
-        if (check_key %in% nor_dist_flat) {
-          # If the age-column combination is in the normally distributed reference, use t.test
-          test_result <- tryCatch(t.test(ko_age_data[[1]], wt_age_data[[1]], alternative=comparison_type),
-                                  error = function(e) list(p.value = NA, statistic = NA))
-          test_type = "t.test"
-        } else {
-          # Otherwise, use wilcox.test
-          test_result <- tryCatch(wilcox.test(ko_age_data[[1]], wt_age_data[[1]], alternative=comparison_type, exact = FALSE),
-                                  error = function(e) list(p.value = NA, statistic = NA))
-          test_type = "wilcox"
-        }
-
-
-        # if (test_type == "t.test") {
-        #   test_result <- t.test(ko_age_data[[1]], wt_age_data[[1]], alternative=comparison_type)
-        # } else {
-        #   test_result <- wilcox.test(ko_age_data[[1]], wt_age_data[[1]], alternative=comparison_type, exact = FALSE)
-        # }
-
-        # Number of values for WT and KO
-        n_values_wt <- nrow(wt_age_data)
-        n_values_ko <- nrow(ko_age_data)
-
-        # Append to all_results_df if p-value <= 0.05
-        if (test_result$p.value <= 0.05) {
-          all_results_df <- rbind(all_results_df, data.frame(column_of_interest=column_of_interest,
-                                                             age=age,
-                                                             p_value=test_result$p.value,
-                                                             test=test_type,
-                                                             hypothesis=comparison_type,
-                                                             n_values=paste(n_values_wt, n_values_ko, sep=", ")))
-        } else {
-          all_results_failed <- rbind(all_results_failed, data.frame(column_of_interest=column_of_interest,
-                                                                     age=age,
-                                                                     p_value=test_result$p.value,
-                                                                     test=test_type,
-                                                                     hypothesis=comparison_type,
-                                                                     n_values=paste(n_values_wt, n_values_ko, sep=", ")))
-        }
-      }
-    }
-  }
-
-  return(list(passed = all_results_df, failed = all_results_failed))
-}
 
 #-----------------------------------------------------------------------------#
-#                               Looking at Naive
+#                               Tregs
 #-----------------------------------------------------------------------------#
 
-actT_naive_columns <- c("ThymicNaive", "NaiveCT")
-prol_naive_columns <- c("NaiveProlRatio", "NaiveProlCT")
+d18_WT = subset(ActivatedWTSpleen, Age == 18)
+d18_KO = subset(ActivatedKOSpleen, Age == 18)
 
-naive_acT_results <- perform_custom_test("activated spleen", actT_naive_columns)
-naive_actT_passed <- naive_acT_results$passed
-naive_actT_failed <- naive_acT_results$failed
+mean(d18_WT$X4TregCT)
+mean(d18_KO$X4TregCT)
 
+??t.test()
+t.test(d18_WT$X4TregCT, d18_KO$X4TregCT, alternative = "greater" )
+
+
+
+koprol_d18 = subset(KOProl, Age == 18)
+koprol_d18$X4TregProlCT

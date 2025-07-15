@@ -1,10 +1,5 @@
 ############################################
-#
-# Generates a figure that will be edited in inkscape
-# TODO: I need to make the file locations a relative location
-#
-#
-#
+
 
 
 library(scales)

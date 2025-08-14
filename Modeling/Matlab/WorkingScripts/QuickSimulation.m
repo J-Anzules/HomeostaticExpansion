@@ -1,6 +1,15 @@
 close all; clc
 global tx
 
+%-------------------------------------------------------------------------------------------------------%
+%                                       Environment set up
+% Grabbing file location
+scriptFull = matlab.desktop.editor.getActiveFilename;
+% Grabbing parts of the location
+scriptDir = fileparts(scriptFull);
+%Moving to file location
+cd(scriptDir)
+
 % FileName = '../Data/ParameterSearch_opnall4.csv';
 % EntryNumber = 31; 
 FileName = '../Data/ParameterSearch_opnall5.csv';
@@ -76,10 +85,10 @@ Res_Main1(p0, 2)
 global  WTerror KOerror
 
 parameterStruct = {};
-parameterStruct.WildType.CellData = readtable('../../RawData/ActivatedWTSpleen.csv');
-parameterStruct.KnockOut.CellData = readtable('../../RawData/ActivatedKOSpleen.csv');
-parameterStruct.WildType.ProlData = readtable('../../RawData/WTProl.csv');
-parameterStruct.KnockOut.ProlData = readtable('../../RawData/KOProl.csv');
+parameterStruct.WildType.CellData = readtable('../RawData/ActivatedWTSpleen.csv');
+parameterStruct.KnockOut.CellData = readtable('../RawData/ActivatedKOSpleen.csv');
+parameterStruct.WildType.ProlData = readtable('../RawData/WTProl.csv');
+parameterStruct.KnockOut.ProlData = readtable('../RawData/KOProl.csv');
 
 %Reducing the number of columns and organizing the populations to be
 %iterated over
